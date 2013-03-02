@@ -17,7 +17,7 @@ mkNode context l v r = case lookup (idl, v, idr) context of
                                       ctx'       = insert (idl, v, idr) res ctx
                                   in
                                   (ctx', res)
-                                    
+
                        where
                        idl = identifier l
                        idr = identifier r

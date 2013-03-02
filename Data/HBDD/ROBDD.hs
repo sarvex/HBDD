@@ -18,3 +18,7 @@ identifier (ROBDD    _ _ _ i) = i
 identifier (ROBDDRef _ _ _ i) = i
 identifier Zero               = 0
 identifier One                = 1
+
+instance Eq (ROBDD v) where
+  a == b = identifier a == identifier b
+
