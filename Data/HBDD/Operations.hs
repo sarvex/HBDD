@@ -4,17 +4,20 @@ UnaryOp
 , BinOp
 , unaryApply
 , apply
+, not
 , and
 , or
 , xor
 , equiv
+, implies
 )
 where
 {- operations.hs
  - This file contains the set of operations appliable on ROBDDS
  -}
 
-import Prelude hiding (and, or)
+import Prelude hiding (and, or, not)
+import qualified Prelude as P
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDFactory
@@ -78,9 +81,8 @@ boolToLeaf :: Bool -> ROBDD v
 boolToLeaf True = One
 boolToLeaf False = Zero
 
--- FIXME: wait for unary apply prototype
--- not :: ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)
--- not = apply_one (not)
+not :: Ord v => ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)
+not = unaryApply (P.not)
 
 and :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 and = apply (&&)
@@ -89,10 +91,13 @@ or :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 or = apply (||)
 
 xor :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-xor = apply (\ left right -> (left || right) && (not $ left && right))
+xor = apply (\ left right -> (left || right) && (P.not $ left && right))
+
+implies :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
+implies = apply (\ left right -> (P.not left) || right)
 
 equiv :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-equiv = apply (\ left right -> (left && right) || (not $ left && right))
+equiv = apply (\ left right -> (left && right) || (P.not $ left && right))
 
 -- exists :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 -- exists = apply (&&)
