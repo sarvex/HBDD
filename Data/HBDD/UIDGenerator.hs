@@ -10,6 +10,7 @@ where
 type UID = Int
 
 newtype UIDGenerator = UIDGenerator [ UID ]
+                       deriving Show
 
 mkGenerator :: UIDGenerator
 mkGenerator = UIDGenerator [ 1 .. ]

@@ -17,6 +17,7 @@ import qualified Data.Map as M
 
 type ROBDDId v = (UID, v, UID)
 data ROBDDContext v = ROBDDContext UIDGenerator (M.Map (ROBDDId v) (ROBDD v))
+                      deriving Show
 
 mkContext :: ROBDDContext v
 mkContext = ROBDDContext mkGenerator M.empty
