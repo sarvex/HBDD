@@ -1,0 +1,14 @@
+Name:            hbdd
+Version:         0.0.0.0
+Description:     purely functional robdd
+License:         BSD3
+License-file:    LICENSE
+Author:          Sébastien Crozet, François Ripault
+Maintainer:      developer@crozet.re
+Build-Type:      Simple
+Cabal-Version:   >=1.2
+
+Library
+  exposed-modules: Data.HBDD.ROBDD
+  Build-Depends:  base
+  ghc-options:    -Wall -O2
