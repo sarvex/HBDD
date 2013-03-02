@@ -13,7 +13,7 @@ newtype UIDGenerator = UIDGenerator [ UID ]
                        deriving Show
 
 mkGenerator :: UIDGenerator
-mkGenerator = UIDGenerator [ 1 .. ]
+mkGenerator = UIDGenerator [ 2 .. ]
 
 allocId :: UIDGenerator -> (Int, UIDGenerator)
 allocId (UIDGenerator [])      = error "Infinite list cannot be empty."

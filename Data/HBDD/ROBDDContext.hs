@@ -27,7 +27,7 @@ allocId (ROBDDContext generator c) = let (res, generator') = UIDG.allocId genera
                                      (res, ROBDDContext generator' c)
 
 lookup :: Ord v => ROBDDId v -> ROBDDContext v -> Maybe (ROBDD v)
-lookup identifier (ROBDDContext i context) = M.lookup identifier context
+lookup uid (ROBDDContext _ context) = M.lookup uid context
 
 insert :: Ord v => ROBDDId v -> ROBDD v -> ROBDDContext v -> ROBDDContext v
-insert identifier t (ROBDDContext i context) = ROBDDContext i $ M.insert identifier t context
+insert uid t (ROBDDContext i context) = ROBDDContext i $ M.insert uid t context
