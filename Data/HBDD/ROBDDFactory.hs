@@ -12,12 +12,15 @@ import Data.HBDD.ROBDDContext
 mkNode :: Ord v => ROBDDContext v -> ROBDD v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 mkNode context l v r = case lookup (idl, v, idr) context of
                        Just c  -> (context, ROBDDRef idl v idr $ identifier c)
-                       Nothing -> let (uid, ctx) = allocId context
-                                      res        = ROBDD l v r uid
-                                      ctx'       = insert (idl, v, idr) res ctx
-                                  in
-                                  (ctx', res)
-
+                       Nothing ->
+                         if idl == idr then
+                          (context, l) -- If the left and right son are the same, no need to create a useless node
+                         else
+                           let (uid, ctx) = allocId context
+                               res        = ROBDD l v r uid
+                               ctx'       = insert (idl, v, idr) res ctx
+                           in
+                           (ctx', res)
                        where
                        idl = identifier l
                        idr = identifier r
