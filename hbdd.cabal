@@ -10,5 +10,6 @@ Cabal-Version:   >=1.2
 
 Library
   exposed-modules: Data.HBDD.ROBDD
-  Build-Depends:  base
+                   , Data.HBDD.ROBDDContext
+  Build-Depends:  base, containers >= 0.5
   ghc-options:    -Wall -O2
