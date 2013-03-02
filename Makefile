@@ -17,4 +17,3 @@ opt:
 
 clean:
 	cabal clean
-	rm -rf ${HOME}/builds/falling
