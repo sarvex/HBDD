@@ -5,6 +5,7 @@ ROBDDId
 , mkContext
 , allocId
 , lookup
+, lookupUnsafe
 , insert
 )
 where
@@ -28,6 +29,9 @@ allocId (ROBDDContext generator c) = let (res, generator') = UIDG.allocId genera
 
 lookup :: Ord v => ROBDDId v -> ROBDDContext v -> Maybe (ROBDD v)
 lookup uid (ROBDDContext _ context) = M.lookup uid context
+
+lookupUnsafe :: Ord v => ROBDDId v -> ROBDDContext v -> ROBDD v
+lookupUnsafe uid ctx = let Just res = lookup uid ctx in res
 
 insert :: Ord v => ROBDDId v -> ROBDD v -> ROBDDContext v -> ROBDDContext v
 insert uid t (ROBDDContext i context) = ROBDDContext i $ M.insert uid t context
