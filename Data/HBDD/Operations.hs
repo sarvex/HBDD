@@ -93,7 +93,7 @@ xor :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v
 xor = apply (/=)
 
 implies :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-implies = apply (\ left right -> (P.not left) || right)
+implies = apply $ (||) . P.not
 
 equiv :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 equiv = apply (==)
