@@ -20,6 +20,8 @@ where
 
 import Prelude hiding (and, or, not)
 import qualified Prelude as P
+import Control.Monad
+import Data.Maybe
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDFactory
@@ -104,10 +106,7 @@ getSat _ Zero = Nothing
 getSat _ One = Just []
 
 getSat context (ROBDD left v right _) =
-  case (getSat context left, getSat context right) of
-    (Just xs, _) -> Just $ v:xs
-    (_, Just xs) -> Just $ v:xs
-    (_,_)        -> Nothing
+  (getSat context left `mplus` getSat context right) >>= return.(v:)
 
 getSat context (ROBDDRef left v right _) =
   getSat context $ lookupUnsafe (left,v,right) context
@@ -119,14 +118,10 @@ getSatList _ One = Just [[]]
 
 -- FIXME: indent, remove { and }
 getSatList context (ROBDD left var right _) =
-  let {resList = case (getSatList context left, getSatList context right) of
-    (Just ls, Just rs) -> concat [ls,rs]
-    (Just ls, _)       -> ls
-    (_, Just rs)       -> rs
-    _                  -> []}
-    in
-      if null resList then Nothing
-      else Just $ map (\ lst -> var:lst) resList
+  let resList = concat $ catMaybes [getSatList context left, getSatList context right]
+  in
+  if null resList then Nothing
+  else Just $ map (var:) resList
 
 getSatList context (ROBDDRef left v right _) =
   getSatList context $ lookupUnsafe (left,v,right) context
