@@ -2,6 +2,8 @@ module Data.HBDD.ROBDD
 (
 ROBDD(..)
 , identifier
+, leafToBool
+, boolToLeaf
 )
 where
 
@@ -21,4 +23,15 @@ identifier One                = 1
 
 instance Eq (ROBDD v) where
   a == b = identifier a == identifier b
+
+-- Convert a ROBDD Leaf (Zero/One) to a Bool
+leafToBool :: Ord v => ROBDD v -> Bool
+leafToBool One = True
+leafToBool Zero = False
+leafToBool _ = undefined
+
+-- Converts a Bool to a ROBDD
+boolToLeaf :: Bool -> ROBDD v
+boolToLeaf True = One
+boolToLeaf False = Zero
 
