@@ -12,6 +12,7 @@ UnaryOp
 , implies
 , getSat
 , getSatList
+, exists
 )
 where
 {- operations.hs
@@ -126,9 +127,43 @@ getSatList context (ROBDD left var right _) =
 getSatList context (ROBDDRef left v right _) =
   getSatList context $ lookupUnsafe (left,v,right) context
 
--- exists :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
--- exists = apply (&&)
---
+
+-- Restrict function
+restrict :: Ord v => ROBDDContext v -> v -> Bool -> ROBDD v -> (ROBDDContext v, ROBDD v)
+
+restrict context var value (ROBDD left v right _) =
+  if var == v then
+    if value then (context, left) else (context,right)
+  else
+    let (leftContext,leftRes) = restrict context var value left
+        (rightContext, rightRes) = restrict leftContext var value right in
+    mkNode rightContext leftRes v rightRes
+
+restrict context var value (ROBDDRef left v right _) =
+  restrict context var value $ lookupUnsafe (left,v,right) context
+
+---- The remaining cases are only the leaves (One/Zero)
+restrict context _ _ leaf = (context,leaf)
+
+-- Exists : for a variable, one of the values of the variables yields a
+-- satisfiable ROBDD
+
+exists' :: Ord v => ROBDDContext v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
+exists' context var robdd =
+  let (leftC,leftRes)   = restrict context var False robdd
+      (rightC,rightRes) = restrict leftC var True robdd
+  in
+    or rightC leftRes rightRes
+
+exists :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
+exists context (ROBDD left v right _) node
+  | (left == Zero || left == One) && (right == Zero || right == One) =
+    exists' context v node
+
+exists context (ROBDDRef left v right _) node =
+  exists context (lookupUnsafe (left,v,right) context) node
+
+exists _ _ _ = undefined
 -- forall :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 -- forall = apply (&&)
 

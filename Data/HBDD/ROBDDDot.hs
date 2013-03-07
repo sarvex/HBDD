@@ -25,7 +25,7 @@ showDotLinks context (ROBDD    l _ r i) = show i ++ " -> " ++ showDotLabel' l
                                                  ++ "[style=dashed];" ++
                                           show i ++ " -> " ++ showDotLabel' r ++ ";" ++
                                           showDotLinks context r ++ showDotLinks context l
-                      
+
 showDotLinks context (ROBDDRef l v r _) = showDotLinks context $ lookupUnsafe (l, v, r) context
 showDotLinks _ Zero = "zero;"
 showDotLinks _ One  = "one;"

@@ -29,3 +29,9 @@ Executable hbdd-not
   hs-source-dirs:  Test
   Main-is:         Not.hs
   ghc-options:     -Wall -threaded -O2
+
+Executable hbdd-exists
+  Build-Depends:   base, hbdd
+  hs-source-dirs:  Test
+  Main-is:         Exists.hs
+  ghc-options:     -Wall -threaded -O2
