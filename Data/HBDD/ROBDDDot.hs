@@ -15,16 +15,20 @@ showDot context robdd = "digraph hbdd {"
                         ++ "}"
 
 showDotLabel :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> String
-showDotLabel context (ROBDD    l v r i) = show i ++ "[label = " ++ show v ++ "];" ++ showDotLabel context l ++ showDotLabel context r
+showDotLabel context (ROBDD    l v r i) =
+  show (identifier l) ++ show i ++ show (identifier r) ++
+  "[label = " ++ show v ++ "];" ++ showDotLabel context l ++ showDotLabel context r
 showDotLabel context (ROBDDRef l v r _) = showDotLabel context $ lookupUnsafe (l, v, r) context
 showDotLabel _       Zero = "zero [shape = box];"
 showDotLabel _       One  = "one [shape = box];"
 
 showDotLinks :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> String
-showDotLinks context (ROBDD    l _ r i) = show i ++ " -> " ++ showDotLabel' l
-                                                 ++ "[style=dashed];" ++
-                                          show i ++ " -> " ++ showDotLabel' r ++ ";" ++
-                                          showDotLinks context r ++ showDotLinks context l
+showDotLinks context (ROBDD    l _ r i) =
+  show (identifier l ) ++ show i ++ show (identifier r)
+    ++ " -> " ++ showDotLabel' l ++ "[style=dashed];" ++
+  show (identifier l) ++ show i ++ show (identifier r)
+  ++  " -> " ++ showDotLabel' r ++ ";"
+  ++ showDotLinks context r ++ showDotLinks context l
 
 showDotLinks context (ROBDDRef l v r _) = showDotLinks context $ lookupUnsafe (l, v, r) context
 showDotLinks _ Zero = "zero;"
@@ -34,4 +38,7 @@ showDotLinks _ One  = "one;"
 showDotLabel' :: (Ord v, Show v) => ROBDD v -> String
 showDotLabel' Zero = "zero"
 showDotLabel' One = "one"
-showDotLabel' robdd = show $ identifier robdd
+showDotLabel' (ROBDD left v right id)=
+  show (identifier left) ++ show id ++ show (identifier right)
+showDotLabel' (ROBDDRef left _ right id)=
+  show left ++ show id ++ show right

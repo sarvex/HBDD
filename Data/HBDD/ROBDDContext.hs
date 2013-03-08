@@ -7,6 +7,7 @@ ROBDDId
 , lookup
 , lookupUnsafe
 , insert
+, isSingleton
 )
 where
 
@@ -35,3 +36,14 @@ lookupUnsafe uid ctx = let Just res = lookup uid ctx in res
 
 insert :: Ord v => ROBDDId v -> ROBDD v -> ROBDDContext v -> ROBDDContext v
 insert uid t (ROBDDContext i context) = ROBDDContext i $ M.insert uid t context
+
+-- Checks if a ROBDD is a singleton
+isSingleton :: Ord v => ROBDDContext v -> ROBDD v -> Bool
+
+isSingleton _ (ROBDD left v right _)
+  | (left == Zero || left == One) && (right == Zero || right == One) = True
+
+isSingleton context (ROBDDRef left v right _) =
+  isSingleton context $ lookupUnsafe (left,v,right) context
+
+isSingleton _ _ = False

@@ -13,6 +13,7 @@ UnaryOp
 , getSat
 , getSatList
 , exists
+, replace
 )
 where
 {- operations.hs
@@ -156,8 +157,8 @@ exists' context var robdd =
     or rightC leftRes rightRes
 
 exists :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-exists context (ROBDD left v right _) node
-  | (left == Zero || left == One) && (right == Zero || right == One) =
+exists context var@(ROBDD _ v _ _) node
+  | isSingleton context var =
     exists' context v node
 
 exists context (ROBDDRef left v right _) node =
@@ -167,5 +168,30 @@ exists _ _ _ = undefined
 -- forall :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 -- forall = apply (&&)
 
+-- Replace : replace a variable with another in a BDD
+
+replace' :: Ord v => ROBDDContext v -> v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
+replace' context rep with (ROBDD left v right _) =
+    let (leftC, leftRes)   = replace' context rep with left
+        (rightC, rightRes) = replace' leftC rep with right
+  in mkNode rightC leftRes rep_var rightRes
+  where rep_var = if rep == v then with else v
+
+replace' context rep with (ROBDDRef left v right _) =
+  replace' context rep with $ lookupUnsafe (left,v,right) context
+
+replace' context _ _ b = (context,b)
+
+replace :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
+replace context rep@(ROBDD _ v _ _) with@(ROBDD _ v' _ _) bdd
+  | (isSingleton context rep) && (isSingleton context with) =
+    replace' context v v' bdd
+
+replace context (ROBDDRef left v right _) with bdd =
+  replace context (lookupUnsafe (left,v,right) context) with bdd
+replace context rep (ROBDDRef left v right _) bdd =
+  replace context rep (lookupUnsafe (left,v,right) context) bdd
+
+replace _ _ _ _ = undefined
 
 {- operations.hs ends here -}
