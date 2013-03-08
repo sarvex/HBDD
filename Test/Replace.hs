@@ -7,10 +7,10 @@ import Data.HBDD.ROBDDDot
 
 main :: IO ()
 main =
-  let (ac,a) = singleton mkContext 1
+  let (ac,a) = singleton mkContext "a"
       (not_ac,not_a) = not ac a
-      (bc,b) = singleton not_ac 2
-      (cc,c) = singleton bc 3
+      (bc,b) = singleton not_ac "b"
+      (cc,c) = singleton bc "c"
       (fc,f) = or cc c b
       (gc,g) = and fc not_a f
       --(hc,h) = replace gc not_a b g
