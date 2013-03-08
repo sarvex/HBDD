@@ -134,7 +134,8 @@ restrict :: Ord v => ROBDDContext v -> v -> Bool -> ROBDD v -> (ROBDDContext v, 
 
 restrict context var value (ROBDD left v right _) =
   if var == v then
-    if value then (context, left) else (context,right)
+    let direction = if value then left else right
+    in restrict context var value direction
   else
     let (leftContext,leftRes) = restrict context var value left
         (rightContext, rightRes) = restrict leftContext var value right in
