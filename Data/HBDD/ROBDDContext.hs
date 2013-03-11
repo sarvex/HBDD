@@ -40,7 +40,7 @@ insert uid t (ROBDDContext i context) = ROBDDContext i $ M.insert uid t context
 -- Checks if a ROBDD is a singleton
 isSingleton :: Ord v => ROBDDContext v -> ROBDD v -> Bool
 
-isSingleton _ (ROBDD left v right _)
+isSingleton _ (ROBDD left _ right _)
   | (left == Zero || left == One) && (right == Zero || right == One) = True
 
 isSingleton context (ROBDDRef left v right _) =

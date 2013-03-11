@@ -12,16 +12,23 @@ Library
   exposed-modules: Data.HBDD.ROBDD
                    , Data.HBDD.ROBDDContext
                    , Data.HBDD.ROBDDFactory
+                   , Data.HBDD.ROBDDState
                    , Data.HBDD.Operations
                    , Data.HBDD.UIDGenerator
                    , Data.HBDD.ROBDDDot
-  Build-Depends:  base, containers >= 0.5
+  Build-Depends:  base, containers >= 0.5, transformers
   ghc-options:    -Wall -O2
 
 Executable hbdd-examples
   Build-Depends:   base, hbdd
   hs-source-dirs:  Test
   Main-is:         Misc.hs
+  ghc-options:     -Wall -threaded -O2
+
+Executable hbdd-state-examples
+  Build-Depends:   base, hbdd, transformers
+  hs-source-dirs:  Test
+  Main-is:         MiscS.hs
   ghc-options:     -Wall -threaded -O2
 
 Executable hbdd-not

@@ -38,7 +38,7 @@ showDotLinks _ One  = "one;"
 showDotLabel' :: (Ord v, Show v) => ROBDD v -> String
 showDotLabel' Zero = "zero"
 showDotLabel' One = "one"
-showDotLabel' (ROBDD left v right id)=
-  show (identifier left) ++ show id ++ show (identifier right)
-showDotLabel' (ROBDDRef left _ right id)=
-  show left ++ show id ++ show right
+showDotLabel' (ROBDD left _ right i)=
+  show (identifier left) ++ show i ++ show (identifier right)
+showDotLabel' (ROBDDRef left _ right i)=
+  show left ++ show i ++ show right
