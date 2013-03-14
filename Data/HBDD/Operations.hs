@@ -103,12 +103,12 @@ equiv = apply (==)
 -- Interactions with ROBDD
 
 -- Returns a satisfying formula on the ROBDD
-getSat :: Ord v => ROBDDContext v -> ROBDD v -> Maybe [v]
+getSat :: Ord v => ROBDDContext v -> ROBDD v -> Maybe [Either v v]
 getSat _ Zero = Nothing
 getSat _ One = Just []
 
 getSat context (ROBDD left v right _) =
-  (getSat context left `mplus` getSat context right) >>= return.(v:)
+  ((getSat context left >>= return.(Left v:)) `mplus` (getSat context right >>= return.(Right v:))) 
 
 getSat context (ROBDDRef left v right _) =
   getSat context $ lookupUnsafe (left,v,right) context
