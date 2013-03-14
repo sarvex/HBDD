@@ -83,7 +83,7 @@ instance Ord v => ROBDDBinOp (ROBDD v) (ROBDDState v) v where
     b' <- b
     fn a b'
 
-class Ord v => ROBDDUnOp a v | a -> where
+class Ord v => ROBDDUnOp a v | a -> v where
   notC :: a -> ROBDDState v
 
 instance Ord v => ROBDDUnOp (ROBDD v) v where
