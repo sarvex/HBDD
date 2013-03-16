@@ -114,14 +114,13 @@ getSat context (ROBDDRef left v right _) =
   getSat context $ lookupUnsafe (left,v,right) context
 
 -- Returns the list of satisfied formulas
-getSatList :: Ord v => ROBDDContext v -> ROBDD v -> Maybe [[Either v v]]
-getSatList  _ Zero = Nothing
-getSatList _ One = Just [[]]
+getSatList :: Ord v => ROBDDContext v -> ROBDD v -> [[Either v v]]
+getSatList  _ Zero = []
+getSatList _ One = [[]]
 
 getSatList context (ROBDD left var right _) =
-  let resList = concat $ catMaybes [fmap (map (Left  var:)) $ getSatList context left,
-                                    fmap (map (Right var:)) $ getSatList context right] in
-  if null resList then Nothing else Just $ resList
+  (map (Left  var:) $ getSatList context left)
+  ++ (map (Right var:) $ getSatList context right)
 
 getSatList context (ROBDDRef left v right _) =
   getSatList context $ lookupUnsafe (left,v,right) context

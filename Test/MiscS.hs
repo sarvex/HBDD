@@ -15,9 +15,9 @@ main = putStrLn $ showDot context bdd
 
 doit :: ROBDDState Int
 doit = do
-       a <- singletonS 1
-       b <- singletonS 2
-       c <- singletonS 3
+       a <- singletonC 1
+       b <- singletonC 2
+       c <- singletonC 3
        a_and_b <- a .&. b
        a_and_c <- a .&. c
        a_and_b .|. a_and_c

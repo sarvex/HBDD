@@ -15,7 +15,7 @@ import Prelude hiding(lookup)
 import Data.HBDD.ROBDD
 import Data.HBDD.UIDGenerator hiding(allocId)
 import qualified Data.HBDD.UIDGenerator as UIDG
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
 
 type ROBDDId v = (UID, v, UID)
 data ROBDDContext v = ROBDDContext UIDGenerator (M.Map (ROBDDId v) (ROBDD v))
