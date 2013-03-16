@@ -18,22 +18,22 @@ instance Eq ComparableOp where
   (ComparableOp _ i) == (ComparableOp _ i') = i == i'
 
 instance Ord ComparableOp where
-  (ComparableOp _ i) >= (ComparableOp _ i') = i >= i'
+  (ComparableOp _ i) <= (ComparableOp _ i') = i <= i'
 
 instance Show ComparableOp where
   show (ComparableOp _ i) = show i
 
 or :: ComparableOp
-or = ComparableOp (||) 1
+or = ComparableOp (||) 0
 
 and :: ComparableOp
-and = ComparableOp (&&) 2
+and = ComparableOp (&&) 1
 
 xor :: ComparableOp
-xor = ComparableOp (/=)  3
+xor = ComparableOp (/=)  2
 
 equiv :: ComparableOp
-equiv = ComparableOp (==) 4
+equiv = ComparableOp (==) 3
 
 implies :: ComparableOp
-implies = ComparableOp ((||) . P.not) 5
+implies = ComparableOp ((||) . P.not) 4

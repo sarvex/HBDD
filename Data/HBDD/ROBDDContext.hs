@@ -17,7 +17,7 @@ import Prelude hiding(lookup)
 import Data.HBDD.ROBDD
 import Data.HBDD.UIDGenerator hiding(allocId)
 import qualified Data.HBDD.UIDGenerator as UIDG
-import qualified Data.Map.Lazy as M
+import qualified Data.Map.Strict as M
 import Data.HBDD.ComparableOp(ComparableOp)
 
 import Debug.Trace
@@ -45,10 +45,10 @@ insert :: Ord v => ROBDDId v -> ROBDD v -> ROBDDContext v -> ROBDDContext v
 insert uid t (ROBDDContext i context o) = ROBDDContext i (M.insert uid t context) o
 
 lookupOp :: Ord v => ROBDDOpId v -> ROBDDContext v -> Maybe (ROBDD v)
-lookupOp uid (ROBDDContext _ _ o) = Nothing -- M.lookup uid o
+lookupOp uid (ROBDDContext _ _ o) = M.lookup uid o
 
 insertOp :: Ord v => ROBDDOpId v -> ROBDD v -> ROBDDContext v -> ROBDDContext v
-insertOp uid t (ROBDDContext i c o) = traceShow (M.size o) $ ROBDDContext i c (M.insert uid t o)
+insertOp uid t (ROBDDContext i c o) = ROBDDContext i c (M.insert uid t o)
 
 -- Checks if a ROBDD is a singleton
 isSingleton :: Ord v => ROBDDContext v -> ROBDD v -> Bool

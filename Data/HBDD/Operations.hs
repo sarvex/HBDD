@@ -76,10 +76,10 @@ apply fn context leftTree (ROBDDRef left var right _) =
 
 apply fn context leftTree@(ROBDD left var right _) rightTree@(ROBDD left' var' right' _) =
   let opId = (identifier leftTree, fn, identifier rightTree) in
-  -- traceShow (identifier leftTree, drawOp fn, identifier rightTree) $
   case lookupOp opId context of
   Just o  -> (context, o)
-  Nothing -> let (ctx, res) = case compare var var' of
+  Nothing -> -- traceShow (identifier leftTree, drawOp fn, identifier rightTree) $
+             let (ctx, res) = case compare var var' of
                               EQ -> applyRec fn context var left right left' right'
                               LT -> applyRec fn context var left right rightTree rightTree
                               GT -> applyRec fn context var' leftTree leftTree left' right'
