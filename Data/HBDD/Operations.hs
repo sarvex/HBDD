@@ -27,9 +27,12 @@ import Data.Maybe
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDFactory
+import qualified Data.HBDD.ComparableOp as CO
+
+import Debug.Trace
 
 type UnaryOp = Bool -> Bool
-type BinOp = Bool -> Bool -> Bool
+type BinOp = CO.ComparableOp
 
 -- Generic function for unary logical operations on ROBDD
 unaryApply :: Ord v => UnaryOp -> ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)
@@ -47,6 +50,7 @@ unaryApply fn context a =
 -- Does the recursion when applying a binary operator
 applyRec :: Ord v => BinOp -> ROBDDContext v -> v -> ROBDD v -> ROBDD v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 applyRec fn context var left right left' right'=
+    context `seq` -- left `seq` context `seq` var `seq` right' `seq` right `seq` left'
     let (leftContext, resLeft)   = apply fn context left left'
         (rightContext, resRight) = apply fn leftContext right right'
     in mkNode rightContext resLeft var resRight
@@ -70,35 +74,47 @@ apply fn context (ROBDDRef left var right _) rightTree =
 apply fn context leftTree (ROBDDRef left var right _) =
   apply fn context leftTree (lookupUnsafe (left,var,right) context)
 
-
 apply fn context leftTree@(ROBDD left var right _) rightTree@(ROBDD left' var' right' _) =
-  case compare var var' of
-    EQ -> applyRec fn context var left right left' right'
-    LT -> applyRec fn context var left right rightTree rightTree
-    GT -> applyRec fn context var' leftTree leftTree left' right'
+  let opId = (identifier leftTree, fn, identifier rightTree) in
+  case lookupOp opId context of
+  Just o  -> (context, o)
+  Nothing -> -- traceShow (identifier leftTree, drawOp fn, identifier rightTree) $
+             let (ctx, res) = case compare var var' of
+                              EQ -> applyRec fn context var left right left' right'
+                              LT -> applyRec fn context var left right rightTree rightTree
+                              GT -> applyRec fn context var' leftTree leftTree left' right'
+             in
+             (insertOp opId res ctx, res)
 
-
-apply fn context a b =
+apply (CO.ComparableOp fn _) context a b =
   (context, boolToLeaf $ leafToBool a `fn` leafToBool b)
 
--- Logical operations on ROBB
+-- FIXME: remove that
+drawOp :: CO.ComparableOp -> String
+drawOp (CO.ComparableOp op _) = case (True `op` True, True `op` False, False `op` True, False `op` False) of
+            (True, False, False, False) -> ".&."
+            (True, True, True, False)   -> ".|."
+            (True, False, True, True)   -> ".=>."
+            _                           -> "<unknown>"
+
+-- Logical operations on ROBDD
 not :: Ord v => ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 not = unaryApply (P.not)
 
 and :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-and = apply (&&)
+and = apply CO.and
 
 or :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-or = apply (||)
+or = apply CO.or
 
 xor :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-xor = apply (/=)
+xor = apply CO.xor
 
 implies :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-implies = apply $ (||) . P.not
+implies = apply CO.implies
 
 equiv :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-equiv = apply (==)
+equiv = apply CO.equiv
 
 -- Interactions with ROBDD
 

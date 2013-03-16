@@ -14,7 +14,7 @@ mkNode context l v r = case lookup (idl, v, idr) context of
                        Just c  -> (context, ROBDDRef idl v idr $ identifier c)
                        Nothing ->
                          if idl == idr then
-                          (context, l) -- If the left and right son are the same, no need to create a useless node
+                          (context, l) -- If the left and right child are the same, no need to create a useless node
                          else
                            let (uid, ctx) = allocId context
                                res        = ROBDD l v r uid
