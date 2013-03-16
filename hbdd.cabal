@@ -54,3 +54,9 @@ Executable hbdd-8queens
   hs-source-dirs:  Demos
   Main-is:         8queens.hs
   ghc-options:     -Wall -threaded -O2
+
+Executable hbdd-knights
+  Build-Depends:   base, hbdd, transformers, containers >= 0.5
+  hs-source-dirs:  Demos
+  Main-is:         KnightsTour.hs
+  ghc-options:     -Wall -threaded -O2 -rtsopts
