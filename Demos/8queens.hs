@@ -44,4 +44,8 @@ doit n =
                    negExp <- foldl (\acc elt -> acc .|. elt) (return Zero) matchLst
                    v .&. notC(negExp))
                   var_lst
-       foldl1 (\acc elt -> acc .|. elt) [(a .&. b .&. c .&. d) | a <- rule_lst, b <- rule_lst, c <- rule_lst, d <- rule_lst, a /= b && b /= c && c/=d]
+       -- not general
+       foldl1 (\acc elt -> acc .|. elt) [(a.&. b .&. c .&. d) | a <- rule_lst, b <- rule_lst, c <- rule_lst, d <- rule_lst
+                                                                , a /= b && a /= c && a /= d
+                                                                  && b /= c && b /= d
+                                                                  && c /= d]
