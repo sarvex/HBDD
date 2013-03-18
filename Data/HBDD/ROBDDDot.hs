@@ -1,12 +1,15 @@
 module Data.HBDD.ROBDDDot
 (
 showDot
+, countNodes
 )
 where
 
 import Prelude hiding(lookup)
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
+
+import Debug.Trace
 
 showDot :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> String
 showDot context robdd = "digraph hbdd {"
@@ -42,3 +45,11 @@ showDotLabel' (ROBDD left _ right i)=
   show (identifier left) ++ show i ++ show (identifier right)
 showDotLabel' (ROBDDRef left _ right i)=
   show left ++ show i ++ show right
+
+countNodes :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> (Int, Int) -> (Int, Int)
+countNodes context (ROBDD    l v r i) (normal, refs) = let nbs = countNodes context l (normal + 1, refs)
+                                                       in
+                                                       countNodes context l nbs
+countNodes context (ROBDDRef l v r _) (normal, refs) = countNodes context (lookupUnsafe (l, v, r) context) (normal - 1, refs + 1)
+countNodes _       Zero (normal, refs) = (normal + 1, refs)
+countNodes _       One  (normal, refs) = (normal + 1, refs)

@@ -50,13 +50,29 @@ unaryApply fn context a =
 -- Does the recursion when applying a binary operator
 applyRec :: Ord v => BinOp -> ROBDDContext v -> v -> ROBDD v -> ROBDD v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 applyRec fn context var left right left' right'=
-    context `seq` -- left `seq` context `seq` var `seq` right' `seq` right `seq` left'
     let (leftContext, resLeft)   = apply fn context left left'
         (rightContext, resRight) = apply fn leftContext right right'
     in mkNode rightContext resLeft var resRight
 
 -- Generic function for binary logical operations on ROBDD
 apply :: Ord v => BinOp -> ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
+
+apply fn context leftTree@(ROBDD left var right _) rightTree@(ROBDD left' var' right' _) =
+  let opId = (identifier leftTree, fn, identifier rightTree) in
+  case lookupOp opId context of
+  Just o  -> (context, o)
+  Nothing -> let (ctx, res) = case compare var var' of
+                              EQ -> applyRec fn context var left right left' right'
+                              LT -> applyRec fn context var left right rightTree rightTree
+                              GT -> applyRec fn context var' leftTree leftTree left' right'
+             in
+             (insertOp opId res ctx, res)
+
+apply fn context (ROBDDRef left var right _) rightTree =
+  apply fn context (lookupUnsafe (left,var,right) context) rightTree
+
+apply fn context leftTree (ROBDDRef left var right _) =
+  apply fn context leftTree (lookupUnsafe (left,var,right) context)
 
 apply fn context Zero (ROBDD left var right _) =
   applyRec fn context var Zero Zero left right
@@ -67,24 +83,6 @@ apply fn context (ROBDD left var right _) Zero =
   applyRec fn context var left right Zero Zero
 apply fn context (ROBDD left var right _) One =
   applyRec fn context var left right One One
-
-apply fn context (ROBDDRef left var right _) rightTree =
-  apply fn context (lookupUnsafe (left,var,right) context) rightTree
-
-apply fn context leftTree (ROBDDRef left var right _) =
-  apply fn context leftTree (lookupUnsafe (left,var,right) context)
-
-apply fn context leftTree@(ROBDD left var right _) rightTree@(ROBDD left' var' right' _) =
-  let opId = (identifier leftTree, fn, identifier rightTree) in
-  case lookupOp opId context of
-  Just o  -> (context, o)
-  Nothing -> -- traceShow (identifier leftTree, drawOp fn, identifier rightTree) $
-             let (ctx, res) = case compare var var' of
-                              EQ -> applyRec fn context var left right left' right'
-                              LT -> applyRec fn context var left right rightTree rightTree
-                              GT -> applyRec fn context var' leftTree leftTree left' right'
-             in
-             (insertOp opId res ctx, res)
 
 apply (CO.ComparableOp fn _) context a b =
   (context, boolToLeaf $ leafToBool a `fn` leafToBool b)

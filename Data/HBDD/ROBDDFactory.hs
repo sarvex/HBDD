@@ -9,6 +9,8 @@ import Prelude hiding(lookup)
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 
+import Debug.Trace
+
 mkNode :: Ord v => ROBDDContext v -> ROBDD v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 mkNode context l v r = case lookup (idl, v, idr) context of
                        Just c  -> (context, ROBDDRef idl v idr $ identifier c)

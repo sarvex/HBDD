@@ -1,3 +1,6 @@
+{-# LANGUAGE BangPatterns             #-}
+{-# OPTIONS_GHC -funbox-strict-fields #-}
+
 module Data.HBDD.ROBDD
 (
 ROBDD(..)
@@ -9,8 +12,8 @@ where
 
 import Data.HBDD.UIDGenerator
 
-data ROBDD v = ROBDD (ROBDD v) v (ROBDD v) UID
-               | ROBDDRef UID v UID UID
+data ROBDD v = ROBDD (ROBDD v) v (ROBDD v) !UID
+               | ROBDDRef !UID v !UID !UID
                | Zero
                | One
                deriving Show
