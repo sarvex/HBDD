@@ -1,3 +1,5 @@
+{-# LANGUAGE DoAndIfThenElse #-}
+
 import System.Environment
 import Data.HBDD.ROBDD
 -- import Data.HBDD.ROBDDContext

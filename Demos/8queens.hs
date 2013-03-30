@@ -34,16 +34,16 @@ inSight :: Int -> (Int,Int) -> ROBDDState (Int,Int)
 inSight n (x,y) =
   do
   let invalid = (\(i,j) -> ((x,y) /= (i,j)) && ((x ==i) || (y==j) || (x+y)==(i+j) || (x-y) == (i-j)))
-      cannot_exist = (foldl1 (.&.)
+      cannot_exist = (foldr1 (.&.)
         (map (notC . singletonC) (filter invalid [(i,j) | i <- [1..n], j <- [1..n]])))
   (singletonC (x,y)) .=>. cannot_exist
 
 doit :: Int -> ROBDDState (Int,Int)
 doit n =
       do
-       let queen_lst = foldl (\acc i ->
+       let queen_lst = foldr (\i acc ->
                  acc .&.
-                 (foldl (\acc j -> (singletonC (i,j)) .|. acc) (return Zero) [1..n]))
+                 (foldr (\j acc -> (singletonC (i,j)) .|. acc) (return Zero) [1..n]))
                (return One) [1..n]
        -- not general
-       foldl (.&.) queen_lst [inSight n (i,j) | i <- [1..n], j <- [1..n]]
+       foldr (.&.) queen_lst [inSight n (i,j) | i <- [1..n], j <- [1..n]]
