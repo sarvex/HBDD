@@ -61,10 +61,10 @@ class Ord v => ROBDDBinOp a b v | a b -> v where
 
 instance Ord v => ROBDDBinOp (ROBDD v) (ROBDD v) v where
   rewrite fn a b = fn a b
-  andC = rewrite $ wrapBinary and
-  orC = rewrite $ wrapBinary or
-  xorC = rewrite $ wrapBinary xor
-  impC = rewrite $ wrapBinary implies
+  andC   = rewrite $ wrapBinary and
+  orC    = rewrite $ wrapBinary or
+  xorC   = rewrite $ wrapBinary xor
+  impC   = rewrite $ wrapBinary implies
   equivC = rewrite $ wrapBinary equiv
 
 instance Ord v => ROBDDBinOp (ROBDDState v) (ROBDDState v) v where
@@ -99,7 +99,7 @@ singletonC var = do
                  ctx <- get
                  let (ctx', val) = singleton ctx var
                  put ctx'
-                 return val
+                 return $! val
 
 -- FIXME: this pattern seems so common than there must be some functions doing that already
 wrapBinary :: Ord v => (ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)) ->
@@ -107,13 +107,13 @@ wrapBinary :: Ord v => (ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v,
 wrapBinary f arg1 arg2 = do
                          ctx <- get
                          let (ctx', res) = f ctx arg1 arg2
-                         put ctx'
-                         return res
+                         put $! clearOpContext ctx'
+                         return $! res
 
 wrapUnary :: Ord v => (ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)) ->
                       ROBDD v -> ROBDDState v
 wrapUnary f arg1= do
                   ctx <- get
                   let (ctx', res) = f ctx arg1
-                  put ctx'
-                  return res
+                  put $! clearOpContext ctx'
+                  return $! res

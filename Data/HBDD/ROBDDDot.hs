@@ -21,7 +21,7 @@ showDotLabel :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> String
 showDotLabel context (ROBDD    l v r i) =
   show (identifier l) ++ show i ++ show (identifier r) ++
   "[label = " ++ show v ++ "];" ++ showDotLabel context l ++ showDotLabel context r
-showDotLabel context (ROBDDRef l v r _) = showDotLabel context $ lookupUnsafe (l, v, r) context
+showDotLabel context (ROBDDRef l v r _) = showDotLabel context $ lookupUnsafe (ROBDDId l v r) context
 showDotLabel _       Zero = "zero [shape = box];"
 showDotLabel _       One  = "one [shape = box];"
 
@@ -33,7 +33,7 @@ showDotLinks context (ROBDD    l _ r i) =
   ++  " -> " ++ showDotLabel' r ++ ";"
   ++ showDotLinks context r ++ showDotLinks context l
 
-showDotLinks context (ROBDDRef l v r _) = showDotLinks context $ lookupUnsafe (l, v, r) context
+showDotLinks context (ROBDDRef l v r _) = showDotLinks context $ lookupUnsafe (ROBDDId l v r) context
 showDotLinks _ Zero = "zero;"
 showDotLinks _ One  = "one;"
 
@@ -50,6 +50,6 @@ countNodes :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> (Int, Int) -> (Int
 countNodes context (ROBDD    l v r i) (normal, refs) = let nbs = countNodes context l (normal + 1, refs)
                                                        in
                                                        countNodes context l nbs
-countNodes context (ROBDDRef l v r _) (normal, refs) = countNodes context (lookupUnsafe (l, v, r) context) (normal - 1, refs + 1)
+countNodes context (ROBDDRef l v r _) (normal, refs) = countNodes context (lookupUnsafe (ROBDDId l v r) context) (normal - 1, refs + 1)
 countNodes _       Zero (normal, refs) = (normal + 1, refs)
 countNodes _       One  (normal, refs) = (normal + 1, refs)

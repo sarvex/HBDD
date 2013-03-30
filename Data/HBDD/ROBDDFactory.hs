@@ -9,10 +9,8 @@ import Prelude hiding(lookup)
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 
-import Debug.Trace
-
 mkNode :: Ord v => ROBDDContext v -> ROBDD v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-mkNode context l v r = case lookup (idl, v, idr) context of
+mkNode context l v r = case lookup (ROBDDId idl v idr) context of
                        Just c  -> (context, ROBDDRef idl v idr $ identifier c)
                        Nothing ->
                          if idl == idr then
@@ -20,7 +18,7 @@ mkNode context l v r = case lookup (idl, v, idr) context of
                          else
                            let (uid, ctx) = allocId context
                                res        = ROBDD l v r uid
-                               ctx'       = insert (idl, v, idr) res ctx
+                               ctx'       = insert (ROBDDId idl v idr) res ctx
                            in
                            (ctx', res)
                        where
