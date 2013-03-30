@@ -10,7 +10,7 @@ import Data.HBDD.ROBDDDot
 import Prelude hiding(and,or,not)
 import Debug.Trace
 import qualified Data.Map.Strict as M
-import Data.Maybe
+import Data.List
 
 
 main :: IO ()
@@ -24,38 +24,35 @@ var (ROBDD _ v _ _) = v
 var (ROBDDRef _ v _ _) = v
 var _ = undefined
 
-type Graph = M.Map (Int,Int,Int) (ROBDDState (Int,Int,Int))
+type Graph = M.Map (Int,Int) (ROBDDState (Int,Int))
 
-getSucc :: Graph -> Int -> (Int,Int,Int) -> [ROBDDState (Int,Int,Int)]
+dtrace :: Show a => a -> a
+dtrace elt = traceShow elt elt
 
-getSucc graph size (x,y,t) =
-  do
-    catMaybes $ map (\k -> M.lookup k graph)
-      [(x + i,y + j,t + 1) | i <- [-2,-1,1,2], j <- [-2,-1,1,2],
-        (x + i) > 0 && (y + j) > 0 && (x + i) < size && (y + j) < size
-        && (abs i) /= (abs j), t < size*size]
+getSucc :: Graph -> Int -> (Int,Int) -> [(Int,Int)]
+getSucc graph size (x,y) =
+      filter (\elt -> M.member elt graph)
+      [(x + i,y + j) | i <- [-2,-1,1,2], j <- [-2,-1,1,2],
+        (x + i) > 0 && (y + j) > 0 && (x + i) <= size && (y + j) <= size
+        && (abs i) /= (abs j)]
 
-remove_futures :: Int -> (Int,Int,Int) -> Graph -> Graph
-remove_futures time (x,y,t) graph =
-  foldl (\g cur ->let coor = (x,y,cur) in M.delete coor g) graph [t..time]
-
-path :: Int -> Int -> ROBDDState (Int,Int,Int) -> Graph -> ROBDDState (Int,Int,Int)
-path 0 _ from _ = from
+path :: Int -> Int -> (Int,Int) -> Graph -> ROBDDState (Int,Int)
+path 0 _ from graph = let (Just ret) = M.lookup from graph in ret
+path 1 _ from graph = let (Just ret) = M.lookup from graph in ret
 path n size from graph =
   do
-    from' <- from
-    foldl (\acc elt ->
-      do
-        elt' <- elt
-        acc .|.  (from .&. (path (n-1) size elt (remove_futures (n*n) (var from') graph))))
-        (return Zero) (getSucc graph size $ var from')
+  let (Just from') = M.lookup from graph
+      graphNew     = M.delete from graph
+      succLst      = getSucc graphNew size from
+  if null succLst then
+    return Zero
+  else
+    let ret = (map (\s -> path (n-1) size s graphNew) succLst) in
+    from' .&. (foldl' (.|.) (head ret) (tail ret))
 
 
-doit :: Int -> ROBDDState (Int,Int,Int)
+doit :: Int -> ROBDDState (Int,Int)
 doit n =
   do
-  let graph = M.fromList [((i,j,t),singletonC (i,j,t)) | i <- [1..n], j <- [1..n], t <- [1..n*n]]
-  M.foldl (\acc elt ->
-    do
-      elt' <- elt
-      acc .|. (path (n-1) n elt (M.delete (var elt') graph))) (return Zero) graph
+  let graph = M.fromList [((i,j),singletonC (i,j)) | i <- [1..n], j <- [1..n]]
+  path (n*n) n (1,1) graph

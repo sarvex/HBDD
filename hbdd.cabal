@@ -18,7 +18,7 @@ Library
                    , Data.HBDD.ROBDDDot
                    , Data.HBDD.ComparableOp
   Build-Depends:  base, containers >= 0.5, transformers
-  ghc-options:    -Wall -O2
+  ghc-options:    -Wall -O2 -funfolding-use-threshold=16 -optc-O3 -funbox-strict-fields
 
 Executable hbdd-examples
   Build-Depends:   base, hbdd, transformers
@@ -54,10 +54,10 @@ Executable hbdd-8queens
   Build-Depends:   base, hbdd, transformers
   hs-source-dirs:  Demos
   Main-is:         8queens.hs
-  ghc-options:     -Wall -threaded -O2
+  ghc-options:     -Wall -threaded -O2 -funfolding-use-threshold=16 -optc-O3
 
 Executable hbdd-knights
   Build-Depends:   base, hbdd, transformers, containers >= 0.5
   hs-source-dirs:  Demos
   Main-is:         KnightsTour.hs
-  ghc-options:     -Wall -threaded -O2 -rtsopts
+  ghc-options:     -Wall -threaded -O2 -rtsopts -XDoAndIfThenElse
