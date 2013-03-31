@@ -2,15 +2,11 @@
 
 import System.Environment
 import Data.HBDD.ROBDD
--- import Data.HBDD.ROBDDContext
--- import Data.HBDD.ROBDDFactory
 import Data.HBDD.Operations
 import Control.Monad.Trans.State.Strict
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDState
-import Data.HBDD.ROBDDDot
 import Prelude hiding(and,or,not)
-import Debug.Trace
 import qualified Data.Map.Strict as M
 import Data.List
 
@@ -21,15 +17,7 @@ main = do
        let (bdd, context) = runState (doit $ read $ head args) mkContext
        putStrLn $ show $ getSat context bdd
 
-var :: Ord v => ROBDD v -> v
-var (ROBDD _ v _ _) = v
-var (ROBDDRef _ v _ _) = v
-var _ = undefined
-
 type Graph = M.Map (Int,Int) (ROBDDState (Int,Int))
-
-dtrace :: Show a => a -> a
-dtrace elt = traceShow elt elt
 
 getSucc :: Graph -> Int -> (Int,Int) -> [(Int,Int)]
 getSucc graph size (x,y) =

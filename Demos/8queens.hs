@@ -1,32 +1,16 @@
 import System.Environment
 import Data.HBDD.ROBDD
--- import Data.HBDD.ROBDDContext
--- import Data.HBDD.ROBDDFactory
 import Data.HBDD.Operations
 import Control.Monad.Trans.State.Strict
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDState
-import Data.HBDD.ROBDDDot
 import Prelude hiding(and,or,not)
-import Debug.Trace
 
 main :: IO ()
 main = do
        args <- getArgs
        let (bdd, context) = runState (doit $ read $ head args) mkContext -- FIXME: 1 reine
        putStrLn $ show $ getSat context bdd
-
-traceIt :: (Show a) => a -> a
-traceIt b = trace (show b) b
-
-traceState :: (Show a) => (ROBDDState a) -> (ROBDDState a)
-traceState robdd =
-  mapState (\s@(a,b) -> traceShow b s) robdd
-
-var :: Ord v => ROBDD v -> v
-var (ROBDD _ v _ _) = v
-var (ROBDDRef _ v _ _) = v
-var _ = undefined
 
 -- Checks if the cell (i,j) is forbidden if there is a queen in cell (x,y),
 -- returns True is so.
@@ -43,7 +27,6 @@ doit n =
       do
        let queen_lst = foldr (\i acc ->
                  acc .&.
-                 (foldr (\j acc -> (singletonC (i,j)) .|. acc) (return Zero) [1..n]))
+                 (foldr (\j acc1 -> (singletonC (i,j)) .|. acc1) (return Zero) [1..n]))
                (return One) [1..n]
-       -- not general
        foldr (.&.) queen_lst [inSight n (i,j) | i <- [1..n], j <- [1..n]]
