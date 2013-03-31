@@ -17,6 +17,9 @@ ROBDDState
 , (.=>.)
 , equivC
 , (.<=>.)
+, restrictC
+, existsC
+, replaceC
 )
 where
 
@@ -100,6 +103,36 @@ singletonC var = do
                  let (ctx', val) = singleton ctx var
                  put ctx'
                  return $! val
+
+restrictC :: Ord v => v -> Bool -> ROBDDState v -> ROBDDState v
+restrictC var value robdd =
+  do
+    ctx <- get
+    robdd' <- robdd
+    let (ctx',val) = restrict ctx var value robdd'
+    put ctx'
+    return  val
+
+existsC :: Ord v => ROBDDState v -> ROBDDState v -> ROBDDState v
+existsC var node =
+  do
+    ctx <- get
+    var' <- var
+    node' <- node
+    let (ctx',val) = exists ctx var' node'
+    put ctx'
+    return  val
+
+replaceC :: Ord v => ROBDDState v -> ROBDDState v -> ROBDDState v -> ROBDDState v
+replaceC rep with bdd =
+    do
+    ctx <- get
+    rep' <- rep
+    with' <- with
+    bdd' <- bdd
+    let (ctx',val) = replace ctx rep' with' bdd'
+    put ctx'
+    return  val
 
 -- FIXME: this pattern seems so common than there must be some functions doing that already
 wrapBinary :: Ord v => (ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)) ->

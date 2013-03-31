@@ -12,6 +12,7 @@ UnaryOp
 , implies
 , getSat
 , getSatList
+, restrict
 , exists
 , replace
 )
