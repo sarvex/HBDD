@@ -6,11 +6,21 @@ import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDState
 import Prelude hiding(and,or,not)
 
+usage :: String
+usage = "8queens Demo : hbdd-8queens n [-sat|-count|-satlist]\n\tWhere n is the size of the board"
+
 main :: IO ()
 main = do
        args <- getArgs
-       let (bdd, context) = runState (doit $ read $ head args) mkContext -- FIXME: 1 reine
-       putStrLn $ show $ getSat context bdd
+       let action (bdd,context) =
+             case head args of
+               "-sat" -> putStrLn $ show $ getSat context bdd
+               "-count" ->  putStrLn $ show $ satCount context bdd
+               "-satlist" -> putStrLn $ show $ getSatList context bdd
+               _ -> putStrLn usage
+       case read $ head $ tail $ args of
+         n -> action $ runState (doit n) mkContext -- FIXME: 1 reine
+         _ -> putStrLn usage
 
 -- Checks if the cell (i,j) is forbidden if there is a queen in cell (x,y),
 -- returns True is so.

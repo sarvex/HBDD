@@ -11,6 +11,7 @@ UnaryOp
 , equiv
 , implies
 , getSat
+, satCount
 , getSatList
 , restrict
 , exists
@@ -137,6 +138,11 @@ getSatList context (ROBDD left var right _) =
 getSatList context (ROBDDRef left v right _) =
   getSatList context $ lookupUnsafe (ROBDDId left v right) context
 
+satCount :: Ord v => ROBDDContext v -> ROBDD v -> Int
+satCount _ One = 1
+satCount _ Zero = 0
+satCount ctx (ROBDD left _ right _) = satCount ctx left + satCount ctx right
+satCount ctx (ROBDDRef left v right _) = satCount ctx $ lookupUnsafe (ROBDDId left v right) ctx
 
 -- Restrict function
 restrict :: Ord v => ROBDDContext v -> v -> Bool -> ROBDD v -> (ROBDDContext v, ROBDD v)

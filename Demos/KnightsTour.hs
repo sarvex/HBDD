@@ -15,7 +15,9 @@ main :: IO ()
 main = do
        args <- getArgs
        let (bdd, context) = runState (doit $ read $ head args) mkContext
-       putStrLn $ show $ getSat context bdd
+       case getSat context bdd of
+         Just _ -> putStrLn "Satisfiable"
+         _ -> putStrLn "No solutions"
 
 type Graph = M.Map (Int,Int) (ROBDDState (Int,Int))
 
