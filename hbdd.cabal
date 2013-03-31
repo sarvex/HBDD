@@ -56,10 +56,10 @@ Executable hbdd-8queens
   Main-is:         8queens.hs
   ghc-options:     -Wall -O2
 
-Executable hbdd-8queens-simpl
-  Build-Depends:   base, hbdd, transformers
+Executable hbdd-colormap
+  Build-Depends:   base, hbdd, transformers, mtl
   hs-source-dirs:  Demos
-  Main-is:         8queensSimpl.hs
+  Main-is:         ColorMap.hs
   ghc-options:     -Wall -O2 -rtsopts
 
 
