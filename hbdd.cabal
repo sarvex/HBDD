@@ -62,9 +62,3 @@ Executable hbdd-knights
   hs-source-dirs:  Demos
   Main-is:         KnightsTour.hs
   ghc-options:     -Wall -O2 -rtsopts
-
-Executable hbdd-colormap
-  Build-Depends:   base, hbdd, transformers, containers >= 0.5, mtl
-  hs-source-dirs:  Demos
-  Main-is:         ColorMap.hs
-  ghc-options:     -Wall -O2 -rtsopts

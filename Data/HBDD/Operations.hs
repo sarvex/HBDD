@@ -174,30 +174,22 @@ exists context (ROBDDRef left v right _) node =
   exists context (lookupUnsafe (ROBDDId left v right) context) node
 
 exists _ _ _ = undefined
--- forall :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
--- forall = apply (&&)
 
 -- Replace : replace a variable with another in a BDD
-
-replace' :: Ord v => ROBDDContext v -> v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-replace' context rep with (ROBDD left v right _) =
-    let (leftC, leftRes)   = replace' context rep with left
-        (rightC, rightRes) = replace' leftC rep with right
-  in mkNode rightC leftRes rep_var rightRes
-  where rep_var = if rep == v then with else v
-
-replace' context rep with (ROBDDRef left v right _) =
-  replace' context rep with $ lookupUnsafe (ROBDDId left v right) context
-
-replace' context _ _ b = (context,b)
 
 replace :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 replace context rep@(ROBDD _ v _ _) with@(ROBDD _ v' _ _) bdd
   | (isSingleton context rep) && (isSingleton context with) =
-    replace' context v v' bdd
+    let (ctx,res0)      = restrict context v False bdd
+        (ctx',res1)     = restrict ctx v True bdd
+        (ctx'',notwith) = not ctx' rep
+        (ctx1,ret1)     = and ctx'' with res1
+        (ctx2,ret2)     = and ctx1 notwith res0 in
+        or ctx2 ret1 ret2
 
 replace context (ROBDDRef left v right _) with bdd =
   replace context (lookupUnsafe (ROBDDId left v right) context) with bdd
+
 replace context rep (ROBDDRef left v right _) bdd =
   replace context rep (lookupUnsafe (ROBDDId left v right) context) bdd
 
