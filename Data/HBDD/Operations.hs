@@ -57,7 +57,7 @@ applyRec fn context var left right left' right'=
 apply :: Ord v => BinOp -> ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 
 apply fn context leftTree@(ROBDD left var right _) rightTree@(ROBDD left' var' right' _) =
-  let opId = ROBDDOpId (identifier leftTree) fn (identifier rightTree) in
+  let opId = ROBDDOpId (identifier leftTree) (identifier rightTree) in
   case lookupOp opId context of
   Just o  -> (context, o)
   Nothing -> let (ctx, res) = case compare var var' of

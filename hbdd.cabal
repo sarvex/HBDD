@@ -56,6 +56,12 @@ Executable hbdd-8queens
   Main-is:         8queens.hs
   ghc-options:     -Wall -O2
 
+Executable hbdd-8queens-simpl
+  Build-Depends:   base, hbdd, transformers
+  hs-source-dirs:  Demos
+  Main-is:         8queensSimpl.hs
+  ghc-options:     -Wall -O2 -rtsopts
+
 
 Executable hbdd-knights
   Build-Depends:   base, hbdd, transformers, containers >= 0.5

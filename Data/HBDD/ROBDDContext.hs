@@ -24,21 +24,19 @@ import Data.HBDD.UIDGenerator hiding(allocId)
 import qualified Data.HBDD.UIDGenerator as UIDG
 import qualified Data.Map.Strict as M
 import qualified Data.IntMap.Strict as IM
-import Data.HBDD.ComparableOp(ComparableOp)
 
-import Debug.Trace
-
-type IntAMap    k v = IM.IntMap (IM.IntMap (M.Map k (ROBDD v)))
+type IntAMap      k v = IM.IntMap (IM.IntMap (M.Map k (ROBDD v)))
+type IntIntMap    v = IM.IntMap (IM.IntMap (ROBDD v))
 data ROBDDId      v = ROBDDId !UID v !UID
-data ROBDDOpId      = ROBDDOpId !UID ComparableOp !UID
-data ROBDDContext v = ROBDDContext !UIDGenerator !(IntAMap v v) !(IntAMap ComparableOp v)
+data ROBDDOpId      = ROBDDOpId !UID !UID
+data ROBDDContext v = ROBDDContext !UIDGenerator !(IntAMap v v) !(IntIntMap v)
                       deriving Show
 
 mkContext :: ROBDDContext v
 mkContext = ROBDDContext mkGenerator IM.empty IM.empty
 
 clearOpContext :: ROBDDContext v -> ROBDDContext v
-clearOpContext (ROBDDContext gen nc o) = ROBDDContext gen nc IM.empty
+clearOpContext (ROBDDContext gen nc _) = ROBDDContext gen nc IM.empty
 
 allocId :: ROBDDContext v -> (UID, ROBDDContext v)
 allocId (ROBDDContext generator c o) = let (res, generator') = UIDG.allocId generator in
@@ -55,10 +53,10 @@ insert :: Ord v => ROBDDId v -> ROBDD v -> ROBDDContext v -> ROBDDContext v
 insert (ROBDDId ia k ib) t (ROBDDContext i context o) = ROBDDContext i (iaminsert ia k ib t context) o
 
 lookupOp :: Ord v => ROBDDOpId -> ROBDDContext v -> Maybe (ROBDD v)
-lookupOp (ROBDDOpId ia k ib) (ROBDDContext _ _ o) = iamlookup ia k ib o
+lookupOp (ROBDDOpId ia ib) (ROBDDContext _ _ o) = iimlookup ia ib o
 
 insertOp :: Ord v => ROBDDOpId -> ROBDD v -> ROBDDContext v -> ROBDDContext v
-insertOp (ROBDDOpId ia k ib) t (ROBDDContext i c o) = ROBDDContext i c (iaminsert ia k ib t o)
+insertOp (ROBDDOpId ia ib) t (ROBDDContext i c o) = ROBDDContext i c (iiminsert ia ib t o)
 
 -- Checks if a ROBDD is a singleton
 isSingleton :: Ord v => ROBDDContext v -> ROBDD v -> Bool
@@ -70,6 +68,9 @@ isSingleton context (ROBDDRef left v right _) =
   isSingleton context $ lookupUnsafe (ROBDDId left v right) context
 
 isSingleton _ _ = False
+
+iimlookup  :: (Ord v) => Int -> Int -> IntIntMap v -> Maybe (ROBDD v)
+iimlookup i1 i2 m = IM.lookup i1 m >>= IM.lookup i2
 
 iamlookup  :: (Ord a, Ord v) => Int -> a -> Int -> IntAMap a v -> Maybe (ROBDD v)
 iamlookup i1 k i2 m = IM.lookup i1 m >>= IM.lookup i2 >>= M.lookup k
@@ -86,3 +87,12 @@ iaminsert i1 k i2 val m = IM.alter (\mp -> Just $                               
                                           Nothing -> IM.empty)
                                          i1
                                          m
+
+iiminsert  :: (Ord v) => Int -> Int -> ROBDD v -> IntIntMap v -> IntIntMap v
+iiminsert i1 i2 val m = IM.alter (\mp -> Just $
+                                   IM.insert i2 val $
+                                   case mp of
+                                     Just m' -> m'
+                                     Nothing -> IM.empty)
+                                  i1
+                                  m
