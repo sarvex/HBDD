@@ -12,7 +12,7 @@ main =
       (dc, not_a) = not cc a
       (ec, not_b) = not dc b
       (fc, not_a_or_not_b) = or ec not_a not_b
-      (gc, not_a_or_b) = not fc not_a_or_not_b
+      (_, not_a_or_b) = not fc not_a_or_not_b
   in do
       putStrLn $ show $ a_and_b
       putStrLn $ show $ not_a_or_b

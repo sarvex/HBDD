@@ -16,7 +16,6 @@ Library
                    , Data.HBDD.Operations
                    , Data.HBDD.UIDGenerator
                    , Data.HBDD.ROBDDDot
-                   , Data.HBDD.ComparableOp
   Build-Depends:  base, containers >= 0.5, transformers
   ghc-options:    -Wall -O2
 

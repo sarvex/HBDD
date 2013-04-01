@@ -7,12 +7,12 @@ import Data.HBDD.ROBDDDot
 
 main :: IO ()
 main =
-  let (ac,a) = singleton mkContext 1
-      (not_ac,not_a) = not ac a
+  let (ac,a) = singleton mkContext (1::Int)
+      (not_ac,_) = not ac a
       (bc,b) = singleton not_ac 2
       (cc,c) = singleton bc 3
       (fc,f) = or cc c b
-      (gc,g) = and fc c f
+      (_,g) = and fc c f
       (retC,ret) = exists fc a g
   in do
     putStrLn $ show $ ret

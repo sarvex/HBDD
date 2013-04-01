@@ -28,10 +28,9 @@ import Control.Monad
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDFactory
-import qualified Data.HBDD.ComparableOp as CO
 
 type UnaryOp = Bool -> Bool
-type BinOp = CO.ComparableOp
+type BinOp   = Bool -> Bool -> Bool
 
 -- Generic function for unary logical operations on ROBDD
 unaryApply :: Ord v => UnaryOp -> ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)
@@ -83,35 +82,27 @@ apply fn context (ROBDD left var right _) Zero =
 apply fn context (ROBDD left var right _) One =
   applyRec fn context var left right One One
 
-apply (CO.ComparableOp fn _) context a b =
+apply fn context a b =
   (context, boolToLeaf $ leafToBool a `fn` leafToBool b)
-
--- FIXME: remove that
--- drawOp :: CO.ComparableOp -> String
--- drawOp (CO.ComparableOp op _) = case (True `op` True, True `op` False, False `op` True, False `op` False) of
---             (True, False, False, False) -> ".&."
---             (True, True, True, False)   -> ".|."
---             (True, False, True, True)   -> ".=>."
---             _                           -> "<unknown>"
 
 -- Logical operations on ROBDD
 not :: Ord v => ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 not = unaryApply (P.not)
 
 and :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-and = apply CO.and
+and = apply (&&)
 
 or :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-or = apply CO.or
+or = apply (||)
 
 xor :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-xor = apply CO.xor
+xor = apply (/=)
 
 implies :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-implies = apply CO.implies
+implies = apply $ (||) . P.not
 
 equiv :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-equiv = apply CO.equiv
+equiv = apply (==)
 
 -- Interactions with ROBDD
 
@@ -185,7 +176,7 @@ exists _ _ _ = undefined
 -- Replace : replace a variable with another in a BDD
 
 replace :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
-replace context rep@(ROBDD _ v _ _) with@(ROBDD _ v' _ _) bdd
+replace context rep@(ROBDD _ v _ _) with bdd
   | (isSingleton context rep) && (isSingleton context with) =
     let (ctx,res0)      = restrict context v False bdd
         (ctx',res1)     = restrict ctx v True bdd
@@ -201,5 +192,3 @@ replace context rep (ROBDDRef left v right _) bdd =
   replace context rep (lookupUnsafe (ROBDDId left v right) context) bdd
 
 replace _ _ _ _ = undefined
-
-{- operations.hs ends here -}

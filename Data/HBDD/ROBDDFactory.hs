@@ -2,6 +2,7 @@ module Data.HBDD.ROBDDFactory
 (
 mkNode
 , singleton
+, singletonNot
 )
 where
 
@@ -27,3 +28,6 @@ mkNode context l v r = case lookup (ROBDDId idl v idr) context of
 
 singleton :: Ord v => ROBDDContext v -> v -> (ROBDDContext v, ROBDD v)
 singleton context var = mkNode context Zero var One
+
+singletonNot :: Ord v => ROBDDContext v -> v -> (ROBDDContext v, ROBDD v)
+singletonNot context var = mkNode context One var Zero

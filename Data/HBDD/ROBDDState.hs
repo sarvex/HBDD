@@ -6,6 +6,7 @@ module Data.HBDD.ROBDDState
 (
 ROBDDState
 , singletonC
+, singletonNotC
 , notC
 , orC
 , (.|.)
@@ -103,6 +104,13 @@ singletonC var = do
                  let (ctx', val) = singleton ctx var
                  put ctx'
                  return $! val
+
+singletonNotC :: Ord v => v -> ROBDDState v
+singletonNotC var = do
+                    ctx <- get
+                    let (ctx', val) = singletonNot ctx var
+                    put ctx'
+                    return $! val
 
 restrictC :: Ord v => v -> Bool -> ROBDDState v -> ROBDDState v
 restrictC var value robdd =

@@ -8,7 +8,7 @@ import Prelude hiding(and,or)
 main :: IO ()
 main =
   let
-    (ac,a) = singleton mkContext 1
+    (ac,a) = singleton mkContext (1::Int)
     (bc,b) = singleton ac 2
     (cc,c) = singleton bc 3
     (dc, a_and_b) = and cc a b
