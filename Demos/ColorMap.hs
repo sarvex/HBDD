@@ -10,55 +10,69 @@ main = do
        let (bdd, context) = runState usa mkContext
        putStrLn $ show $ getSat context bdd
 
+-- | Restriction saying that the neighbourgs of a node cannot have the same color
 edge :: Int -> Int -> ROBDDState Int
-edge state1 state2 = (state1Color1 .=>. notC state2Color1)     -- incompatible colors
-                     .&. (state1Color2 .=>. notC state2Color2)
-                     .&. (state1Color3 .=>. notC state2Color3)
-                     .&. (state1Color4 .=>. notC state2Color4)
-                     .&. foldr1 (.|.) states1                   -- everybody has at least one color
-                     .&. foldr1 (.|.) states2
+edge state1 state2 = (state1Color1 .=>. notState2Color1)     -- incompatible colors
+                     .&. (state1Color2 .=>. notState2Color2)
+                     .&. (state1Color3 .=>. notState2Color3)
+                     .&. (state1Color4 .=>. notState2Color4)
                      where
                      state1Color1 = singletonC $ state1 + 0 -- + r
                      state1Color2 = singletonC $ state1 + 1 -- + g
                      state1Color3 = singletonC $ state1 + 2 -- + b
                      state1Color4 = singletonC $ state1 + 3 -- + y
-                     states1      = [ state1Color1, state1Color2 , state1Color3, state1Color4 ]
-                     state2Color1 = singletonC $ state2 + 0 -- + r
-                     state2Color2 = singletonC $ state2 + 1 -- + g
-                     state2Color3 = singletonC $ state2 + 2 -- + b
-                     state2Color4 = singletonC $ state2 + 3 -- + y
-                     states2      = [ state2Color1, state2Color2 , state2Color3, state2Color4 ]
+                     notState2Color1 = singletonNotC $ state2 + 0 -- + r
+                     notState2Color2 = singletonNotC $ state2 + 1 -- + g
+                     notState2Color3 = singletonNotC $ state2 + 2 -- + b
+                     notState2Color4 = singletonNotC $ state2 + 3 -- + y
 
+-- | Restrictions saying that a state has only one color
+oneColor :: Int -> ROBDDState Int
+oneColor statec = foldr1 (.|.) $ map forbid colors
+                  where
+                  forbid i = singletonC i
+                             .&. foldr1 (.&.) [ singletonNotC c | c <- colors, c /= i ]
+                  color1 = statec + 0 -- + r
+                  color2 = statec + 1 -- + g
+                  color3 = statec + 2 -- + b
+                  color4 = statec + 3 -- + y
+                  colors = [ color1, color2 , color3, color4 ]
 
+-- | BDD of the USA graph-coloring problem.
 usa :: ROBDDState Int
-usa = edge al fl .&. edge al ga .&. edge al ms .&. edge al tn
-      .&. edge ar la .&. edge ar mo .&. edge ar ms .&. edge ar ok
-      .&. edge ar tn .&. edge ar tx .&. edge az ca .&. edge az nm
-      .&. edge az nv .&. edge az ut .&. edge ca nv .&. edge ca or_
-      .&. edge co ks .&. edge co ne .&. edge co nm .&. edge co ok
-      .&. edge co ut .&. edge co wy .&. edge ct ma .&. edge ct ny
-      .&. edge ct ri .&. edge de md .&. edge de nj .&. edge de pa
-      .&. edge fl ga .&. edge ga nc .&. edge ga sc .&. edge ga tn
-      .&. edge ia il .&. edge ia mn .&. edge ia mo .&. edge ia ne
-      .&. edge ia sd .&. edge ia wi .&. edge id_ mt .&. edge id_ nv
+usa = (foldr1 (.&.) $ map oneColor allStates)
+      .&. edge al fl   .&. edge al ga  .&. edge al ms  .&. edge al tn
+      .&. edge ar la   .&. edge ar mo  .&. edge ar ms  .&. edge ar ok
+      .&. edge ar tn   .&. edge ar tx  .&. edge az ca  .&. edge az nm
+      .&. edge az nv   .&. edge az ut  .&. edge ca nv  .&. edge ca or_
+      .&. edge co ks   .&. edge co ne  .&. edge co nm  .&. edge co ok
+      .&. edge co ut   .&. edge co wy  .&. edge ct ma  .&. edge ct ny
+      .&. edge ct ri   .&. edge de md  .&. edge de nj  .&. edge de pa
+      .&. edge fl ga   .&. edge ga nc  .&. edge ga sc  .&. edge ga tn
+      .&. edge ia il   .&. edge ia mn  .&. edge ia mo  .&. edge ia ne
+      .&. edge ia sd   .&. edge ia wi  .&. edge id_ mt .&. edge id_ nv
       .&. edge id_ or_ .&. edge id_ ut .&. edge id_ wa .&. edge id_ wy
-      .&. edge il in_ .&. edge il ky .&. edge il mo .&. edge il wi
-      .&. edge in_ ky .&. edge in_ mi .&. edge in_ oh .&. edge ks mo
-      .&. edge ks ne .&. edge ks ok .&. edge ky mo .&. edge ky oh
-      .&. edge ky tn .&. edge ky va .&. edge ky wv .&. edge la ms
-      .&. edge la tx .&. edge ma nh .&. edge ma ny .&. edge ma ri
-      .&. edge ma vt .&. edge md pa .&. edge md va .&. edge md wv
-      .&. edge me nh .&. edge mi oh .&. edge mi wi .&. edge mn nd
-      .&. edge mn sd .&. edge mn wi .&. edge mo ne .&. edge mo ok
-      .&. edge mo tn .&. edge ms tn .&. edge mt nd .&. edge mt sd
-      .&. edge mt wy .&. edge nc sc .&. edge nc tn .&. edge nc va
-      .&. edge nd sd .&. edge ne sd .&. edge ne wy .&. edge nh vt
-      .&. edge nj ny .&. edge nj pa .&. edge nm ok .&. edge nm tx
-      .&. edge nv or_ .&. edge nv ut .&. edge ny pa .&. edge ny vt
-      .&. edge oh pa .&. edge oh wv .&. edge ok tx .&. edge or_ wa
-      .&. edge pa wv .&. edge sd wy .&. edge tn va .&. edge ut wy
+      .&. edge il in_  .&. edge il ky  .&. edge il mo  .&. edge il wi
+      .&. edge in_ ky  .&. edge in_ mi .&. edge in_ oh .&. edge ks mo
+      .&. edge ks ne   .&. edge ks ok  .&. edge ky mo  .&. edge ky oh
+      .&. edge ky tn   .&. edge ky va  .&. edge ky wv  .&. edge la ms
+      .&. edge la tx   .&. edge ma nh  .&. edge ma ny  .&. edge ma ri
+      .&. edge ma vt   .&. edge md pa  .&. edge md va  .&. edge md wv
+      .&. edge me nh   .&. edge mi oh  .&. edge mi wi  .&. edge mn nd
+      .&. edge mn sd   .&. edge mn wi  .&. edge mo ne  .&. edge mo ok
+      .&. edge mo tn   .&. edge ms tn  .&. edge mt nd  .&. edge mt sd
+      .&. edge mt wy   .&. edge nc sc  .&. edge nc tn  .&. edge nc va
+      .&. edge nd sd   .&. edge ne sd  .&. edge ne wy  .&. edge nh vt
+      .&. edge nj ny   .&. edge nj pa  .&. edge nm ok  .&. edge nm tx
+      .&. edge nv or_  .&. edge nv ut  .&. edge ny pa  .&. edge ny vt
+      .&. edge oh pa   .&. edge oh wv  .&. edge ok tx  .&. edge or_ wa
+      .&. edge pa wv   .&. edge sd wy  .&. edge tn va  .&. edge ut wy
       .&. edge va wv
       where
+      allStates = 
+        [al , az , ar , ca , co , ct , de , fl , ga , id_ , il , in_ , ia , ks , ky , la , me , md
+        , ma , mi , mn , ms , mo , mt , ne , nv , nh , nj , nm , ny , nc , nd , oh , ok , or_ , pa
+        , ri , sc , sd , tn , tx , ut , vt , va , wa , wv , wi , wy]
       al = 1 * 4 :: Int
       -- ak = 2 * 4 :: Int
       az = 3 * 4 :: Int
