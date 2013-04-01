@@ -10,6 +10,8 @@ import Prelude hiding(lookup)
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 
+-- | Creates an new ROBDD from a variable and its two children. If the same ROBDD already exists
+-- and the context, no node is created and an ROBDDRef is returned instead.
 mkNode :: Ord v => ROBDDContext v -> ROBDD v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 mkNode context l v r = case lookup (ROBDDId idl v idr) context of
                        Just c  -> (context, ROBDDRef idl v idr $ identifier c)
@@ -26,8 +28,15 @@ mkNode context l v r = case lookup (ROBDDId idl v idr) context of
                        idl = identifier l
                        idr = identifier r
 
+-- | Creates a new singleton from a variable. If the same singleton already exists and the context,
+-- no node is created and an ROBDDRef is returned instead.
+-- Use 'singletonNotC' for an implicitly contextualized node creation.
 singleton :: Ord v => ROBDDContext v -> v -> (ROBDDContext v, ROBDD v)
 singleton context var = mkNode context Zero var One
 
+-- | Creates a new singleton from a variable. The corresponding formula evaluates to True when the
+-- variable is False and vice-versa. This is the same as 'execState . notC . singleton' If the same
+-- singleton already exists and the context, no node is created and an ROBDDRef is returned
+-- instead. Use 'singletonNotC' for an implicitly contextualized node creation.
 singletonNot :: Ord v => ROBDDContext v -> v -> (ROBDDContext v, ROBDD v)
 singletonNot context var = mkNode context One var Zero

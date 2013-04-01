@@ -1,5 +1,5 @@
 Name:            hbdd
-Version:         0.0.0.0
+Version:         0.1.0.0
 Description:     purely functional robdd
 License:         BSD3
 License-file:    LICENSE
@@ -60,7 +60,6 @@ Executable hbdd-colormap
   hs-source-dirs:  Demos
   Main-is:         ColorMap.hs
   ghc-options:     -Wall -O2 -rtsopts
-
 
 Executable hbdd-knights
   Build-Depends:   base, hbdd, transformers, containers >= 0.5

@@ -1,7 +1,6 @@
 module Data.HBDD.ROBDDDot
 (
 showDot
-, countNodes
 )
 where
 
@@ -9,6 +8,7 @@ import Prelude hiding(lookup)
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 
+-- | Exports a ROBDD as a dot-compilable string.
 showDot :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> String
 showDot context robdd = "digraph hbdd {"
                         ++ showDotLabel context robdd
@@ -28,7 +28,7 @@ showDotLinks context (ROBDD    l _ r i) =
   show (identifier l ) ++ show i ++ show (identifier r)
     ++ " -> " ++ showDotLabel' l ++ "[style=dashed];" ++
   show (identifier l) ++ show i ++ show (identifier r)
-  ++  " -> " ++ showDotLabel' r ++ ";"
+  ++ " -> " ++ showDotLabel' r ++ ";"
   ++ showDotLinks context r ++ showDotLinks context l
 
 showDotLinks context (ROBDDRef l v r _) = showDotLinks context $ lookupUnsafe (ROBDDId l v r) context
@@ -43,11 +43,3 @@ showDotLabel' (ROBDD left _ right i)=
   show (identifier left) ++ show i ++ show (identifier right)
 showDotLabel' (ROBDDRef left _ right i)=
   show left ++ show i ++ show right
-
-countNodes :: (Ord v, Show v) => ROBDDContext v -> ROBDD v -> (Int, Int) -> (Int, Int)
-countNodes context (ROBDD    l _ _ _) (normal, refs) = let nbs = countNodes context l (normal + 1, refs)
-                                                       in
-                                                       countNodes context l nbs
-countNodes context (ROBDDRef l v r _) (normal, refs) = countNodes context (lookupUnsafe (ROBDDId l v r) context) (normal - 1, refs + 1)
-countNodes _       Zero (normal, refs) = (normal + 1, refs)
-countNodes _       One  (normal, refs) = (normal + 1, refs)

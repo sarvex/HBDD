@@ -34,6 +34,9 @@ import Data.HBDD.Operations
 
 type ROBDDState v = State (ROBDDContext v) (ROBDD v)
 
+-- | Class of binary operations acting on ROBDDs.
+-- Minimim implementation requires the function 'rewrite' which intend to be an operator
+-- used to rewrite binary operation to fit the new signature 'a -> b -> ROBDDState v'.
 class Ord v => ROBDDBinOp a b v | a b -> v where
   rewrite ::(ROBDD v -> ROBDD v -> ROBDDState v) -> a -> b -> ROBDDState v
 
@@ -87,6 +90,8 @@ instance Ord v => ROBDDBinOp (ROBDD v) (ROBDDState v) v where
     b' <- b
     fn a b'
 
+-- | Class of the negation operator working on obdds. It allowg the use of the same NotC operator
+-- on lifted and unlifted ROBDDs.
 class Ord v => ROBDDUnOp a v | a -> v where
   notC :: a -> ROBDDState v
 
@@ -98,63 +103,71 @@ instance Ord v => ROBDDUnOp (ROBDDState v) v where
     a' <- a
     notC a'
 
+-- | Same as 'singleton' but inside of the State monad, avoiding explicit 'ROBDDContext'
+-- passing.
 singletonC :: Ord v => v -> ROBDDState v
 singletonC var = do
                  ctx <- get
                  let (ctx', val) = singleton ctx var
-                 put ctx'
+                 put    $! clearOpContext ctx'
                  return $! val
 
+-- | Same as 'singletonNot' but inside of the State monad, avoiding explicit 'ROBDDContext'
+-- passing.
 singletonNotC :: Ord v => v -> ROBDDState v
 singletonNotC var = do
                     ctx <- get
                     let (ctx', val) = singletonNot ctx var
-                    put ctx'
+                    put    $! clearOpContext ctx'
                     return $! val
 
+-- | Same as 'restrict' but inside of the State monad, avoiding explicit 'ROBDDContext' passing.
 restrictC :: Ord v => v -> Bool -> ROBDDState v -> ROBDDState v
 restrictC var value robdd =
   do
-    ctx <- get
+    ctx    <- get
     robdd' <- robdd
     let (ctx',val) = restrict ctx var value robdd'
-    put ctx'
-    return  val
+    put    $! clearOpContext ctx'
+    return $! val
 
+-- | Same as 'exists' but inside of the State monad, avoiding explicit 'ROBDDContext' passing.
 existsC :: Ord v => ROBDDState v -> ROBDDState v -> ROBDDState v
 existsC var node =
   do
-    ctx <- get
-    var' <- var
+    ctx   <- get
+    var'  <- var
     node' <- node
     let (ctx',val) = exists ctx var' node'
-    put ctx'
-    return  val
+    put    $! clearOpContext ctx'
+    return $! val
 
+-- | Same as 'replace' but inside of the State monad, avoiding explicit 'ROBDDContext' passing.
 replaceC :: Ord v => ROBDDState v -> ROBDDState v -> ROBDDState v -> ROBDDState v
 replaceC rep with bdd =
     do
-    ctx <- get
-    rep' <- rep
+    ctx   <- get
+    rep'  <- rep
     with' <- with
-    bdd' <- bdd
+    bdd'  <- bdd
     let (ctx',val) = replace ctx rep' with' bdd'
-    put ctx'
-    return  val
+    put    $! clearOpContext ctx'
+    return $! val
 
--- FIXME: this pattern seems so common than there must be some functions doing that already
+-- | Lifts a binary operator inside of the State monad.
 wrapBinary :: Ord v => (ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)) ->
                        ROBDD v -> ROBDD v -> ROBDDState v
 wrapBinary f arg1 arg2 = do
                          ctx <- get
                          let (ctx', res) = f ctx arg1 arg2
-                         put $! clearOpContext ctx'
+                         put    $! clearOpContext ctx'
                          return $! res
 
+-- | Lifts an unary operator inside of the State monad.
 wrapUnary :: Ord v => (ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)) ->
                       ROBDD v -> ROBDDState v
 wrapUnary f arg1= do
                   ctx <- get
                   let (ctx', res) = f ctx arg1
-                  put $! clearOpContext ctx'
+                  put    $! clearOpContext ctx'
                   return $! res
