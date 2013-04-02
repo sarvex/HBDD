@@ -90,10 +90,10 @@ insertOp (ROBDDOpId ia ib) t (ROBDDContext i c o) = ROBDDContext i c (iiminsert 
 -- | Checks if a ROBDD is a singleton.
 isSingleton :: Ord v => ROBDDContext v -> ROBDD v -> Bool
 
-isSingleton _ (ROBDD left _ right _)
+isSingleton _ (ROBDD left _ right _ _)
   | (left == Zero || left == One) && (right == Zero || right == One) = True
 
-isSingleton context (ROBDDRef left v right _) =
+isSingleton context (ROBDDRef left v right _ _) =
   isSingleton context $ lookupUnsafe (ROBDDId left v right) context
 
 isSingleton _ _ = False

@@ -41,7 +41,7 @@ queens n = do
            -- one queen per line …
            let queen_lst = foldr (\i acc ->
                      acc .&.
-                     (foldr (\j acc1 -> (singletonC (i,j)) .|. acc1) (return Zero) [1..n]))
+                     (foldr1 (\s acc1 -> s .|. acc1) [ singletonC (i, j) | j <- [1..n]]))
                    (return One) [1..n]
            -- … and nobody can eat nobody
-           foldr (.&.) queen_lst [inSight n (i,j) | i <- [1..n], j <- [1..n]]
+           foldr1 (.&.) ([inSight n (i,j) | i <- [1..n], j <- [1..n]] ++ [queen_lst])

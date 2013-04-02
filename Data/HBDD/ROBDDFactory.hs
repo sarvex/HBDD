@@ -14,13 +14,13 @@ import Data.HBDD.ROBDDContext
 -- and the context, no node is created and an ROBDDRef is returned instead.
 mkNode :: Ord v => ROBDDContext v -> ROBDD v -> v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 mkNode context l v r = case lookup (ROBDDId idl v idr) context of
-                       Just c  -> (context, ROBDDRef idl v idr $ identifier c)
+                       Just c  -> (context, ROBDDRef idl v idr (identifier c) (size c))
                        Nothing ->
                          if idl == idr then
                           (context, l) -- If the left and right child are the same, no need to create a useless node
                          else
                            let (uid, ctx) = allocId context
-                               res        = ROBDD l v r uid
+                               res        = ROBDD l v r uid (size l + size r + 1)
                                ctx'       = insert (ROBDDId idl v idr) res ctx
                            in
                            (ctx', res)

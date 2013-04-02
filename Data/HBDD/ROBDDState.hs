@@ -21,12 +21,16 @@ ROBDDState
 , restrictC
 , existsC
 , replaceC
+, foldBySizeC
 )
 where
 
 import Control.Monad.Trans.State.Strict
+import Control.Monad
 
 import Prelude hiding(and, or, not)
+import Data.List(insertBy, sortBy)
+import Data.Function
 import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDFactory
@@ -153,6 +157,21 @@ replaceC rep with bdd =
     let (ctx',val) = replace ctx rep' with' bdd'
     put    $! clearOpContext ctx'
     return $! val
+
+-- foldBySizeC :: Ord v => (ROBDDState v -> ROBDDState v -> ROBDDState v) -> [ ROBDDState v ] -> ROBDDState v
+-- foldBySizeC = foldr1
+
+foldBySizeC :: Ord v => (ROBDDState v -> ROBDDState v -> ROBDDState v) -> [ ROBDDState v ] -> ROBDDState v
+foldBySizeC f l = foldRec sorted
+                  where
+                  foldRec ls = ls >>= \ls' ->
+                                      case ls' of
+                                      []       -> error "List.empty"
+                                      e:[]     -> return e
+                                      e1:e2:es -> do
+                                                  res <- f (return e1) (return e2)
+                                                  foldRec $ return $ insertBy (compare `on` size) res es
+                  sorted = (liftM2 sortBy) (return (compare `on` size)) (sequence l)
 
 -- | Lifts a binary operator inside of the State monad.
 wrapBinary :: Ord v => (ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)) ->

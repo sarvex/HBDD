@@ -5,6 +5,7 @@ module Data.HBDD.ROBDD
 (
 ROBDD(..)
 , identifier
+, size
 , leafToBool
 , boolToLeaf
 )
@@ -20,8 +21,8 @@ import Data.HBDD.UIDGenerator
 --     differents contexts. This might lead to an assertion failure, or any other weird behaviour.
 --     * 'Zero' the leaf equal to False.
 --     * 'One' the leaf equal to True.
-data ROBDD v = ROBDD (ROBDD v) v (ROBDD v) !UID
-               | ROBDDRef !UID v !UID !UID
+data ROBDD v = ROBDD (ROBDD v) v (ROBDD v) !UID Int
+               | ROBDDRef !UID v !UID !UID Int
                | Zero
                | One
                deriving Show
@@ -29,10 +30,16 @@ data ROBDD v = ROBDD (ROBDD v) v (ROBDD v) !UID
 -- | The identifier of a ROBDD. Two ROBDDs are equal iff they have the same identifier and were
 -- created with the same 'ROBDDContext'.
 identifier :: ROBDD v -> UID
-identifier (ROBDD    _ _ _ i) = i
-identifier (ROBDDRef _ _ _ i) = i
-identifier Zero               = 0
-identifier One                = 1
+identifier (ROBDD    _ _ _ i _) = i
+identifier (ROBDDRef _ _ _ i _) = i
+identifier Zero                 = 0
+identifier One                  = 1
+
+size :: ROBDD v -> Int
+size (ROBDD    _ _ _ _ s) = s
+size (ROBDDRef _ _ _ _ s) = s
+size Zero                 = 1
+size One                  = 1
 
 instance Eq (ROBDD v) where
   a == b = identifier a == identifier b
