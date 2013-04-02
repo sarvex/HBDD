@@ -34,12 +34,6 @@ import Data.HBDD.Operations
 
 type ROBDDState v = State (ROBDDContext v) (ROBDD v)
 
---instance Eq (ROBDDState v) where
---  a == b = do
---      a' <- a
---      b' <- b
---      return a' == b'
-
 -- | Class of binary operations acting on ROBDDs.
 -- Minimim implementation requires the function 'rewrite' which intend to be an operator
 -- used to rewrite binary operation to fit the new signature 'a -> b -> ROBDDState v'.
