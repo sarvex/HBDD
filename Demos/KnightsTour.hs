@@ -6,7 +6,7 @@ import Control.Monad.Trans.State.Strict
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDState
 import Prelude hiding(and,or,not)
-import Debug.Trace
+import Data.List
 
 main :: IO ()
 main = do
@@ -24,7 +24,7 @@ path :: Int -> ROBDDState (Int,Int) -> [(Int,Int)] -> ROBDDState (Int,Int)
 path size ref nodes =
   do
   ref' <- ref
-  let succLst = concat $ map (getSucc size) nodes
+  let succLst = nub $ concat $ map (getSucc size) nodes
       result  = ref .&. (foldl1 (.&.) $ map singletonC succLst)
   result' <- result
   if result' == ref' then
