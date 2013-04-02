@@ -12,10 +12,7 @@ main :: IO ()
 main = do
        args <- getArgs
        let (bdd, context) = runState (doit $ read $ head args) mkContext
-       putStrLn $ show $ getSatList context bdd
-       -- case getSat context bdd of
-       --   Just _ -> putStrLn "Satisfiable"
-       --   _ -> putStrLn "No solutions"
+       putStrLn $ show $ getSat context bdd
 
 getSucc :: Int -> (Int,Int) -> [(Int,Int)]
 getSucc size (x,y) =
@@ -39,5 +36,4 @@ path size ref nodes =
 doit :: Int -> ROBDDState (Int,Int)
 doit n =
   do
-  let start = singletonC (1,1)
-  path n start [(1,1)]
+  (foldl1 (.&.) [singletonC (i,j) | i <- [1..n], j <- [1..n]]) .<=>. (path n (singletonC (1,1)) [(1,1)])
