@@ -19,36 +19,6 @@ Library
   Build-Depends:  base, containers >= 0.5, transformers
   ghc-options:    -Wall -O2
 
-Executable hbdd-examples
-  Build-Depends:   base, hbdd, transformers
-  hs-source-dirs:  Test
-  Main-is:         Misc.hs
-  ghc-options:     -Wall -O2
-
-Executable hbdd-state-examples
-  Build-Depends:   base, hbdd, transformers
-  hs-source-dirs:  Test
-  Main-is:         MiscS.hs
-  ghc-options:     -Wall -O2
-
-Executable hbdd-not
-  Build-Depends:   base, hbdd
-  hs-source-dirs:  Test
-  Main-is:         Not.hs
-  ghc-options:     -Wall -O2
-
-Executable hbdd-exists
-  Build-Depends:   base, hbdd
-  hs-source-dirs:  Test
-  Main-is:         Exists.hs
-  ghc-options:     -Wall -O2
-
-Executable hbdd-replace
-  Build-Depends:   base, hbdd
-  hs-source-dirs:  Test
-  Main-is:         Replace.hs
-  ghc-options:     -Wall -O2
-
 Executable hbdd-8queens
   Build-Depends:   base, hbdd, transformers
   hs-source-dirs:  Demos
