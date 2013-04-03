@@ -1,10 +1,19 @@
+Authors
+=======
+
+François  Ripault
+Sébastien Crozet
+
 HBDD
 ====
 
 Purely functional ROBDD library.
 
+The library sources are on the 'Data/HBDD' folder.
+The demos are on the 'Demos' folder.
+
 Since HBDD is purely functional and ROBDDs need some global state to store BDDs, the user has two
-ways to achieve state-passing:
+ways to achieve state (context)-passing:
   * using the direct api (see Operations.hs) and explicit state passing. Having to passe the state
     explicitly forbids the use of infix operators, and is very error-prone. So, you might prefer
     the State-based version.
