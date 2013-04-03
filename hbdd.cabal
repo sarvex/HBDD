@@ -61,6 +61,12 @@ Executable hbdd-colormap
   Main-is:         ColorMap.hs
   ghc-options:     -Wall -O2 -rtsopts
 
+Executable hbdd-colormap-simpl
+  Build-Depends:   base, hbdd, transformers, mtl, containers
+  hs-source-dirs:  Demos
+  Main-is:         ColorMapSimpl.hs
+  ghc-options:     -Wall -O2 -rtsopts
+
 Executable hbdd-knights
   Build-Depends:   base, hbdd, transformers, containers >= 0.5
   hs-source-dirs:  Demos
