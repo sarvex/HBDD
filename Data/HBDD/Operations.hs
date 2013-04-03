@@ -29,7 +29,10 @@ import Data.HBDD.ROBDD
 import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDFactory
 
+-- | Type of unary operations.
 type UnaryOp = Bool -> Bool
+
+-- | Type of binary operations.
 type BinOp   = Bool -> Bool -> Bool
 
 -- | Generic function to apply unary logical operations on ROBDD. Prelude’s boolean operations can
@@ -92,12 +95,12 @@ not :: Ord v => ROBDDContext v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 not = unaryApply (P.not)
 
 -- | AND operator on ROBDD. Needs an explicit 'ROBDDContext' context passing. Use 'andC' or
--- '(.&&.)' instead to get an implicit context passing.
+-- (.&&.) instead to get an implicit context passing.
 and :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 and = apply (&&)
 
 -- | OR operator on ROBDD. Needs an explicit 'ROBDDContext' context passing. Use 'orC' or
--- '(.||.)' instead to get an implicit context passing.
+-- (.||.) instead to get an implicit context passing.
 or :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 or = apply (||)
 
@@ -107,12 +110,12 @@ xor :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v
 xor = apply (/=)
 
 -- | Implication operator on ROBDD. Needs an explicit 'ROBDDContext' context passing. Use
--- 'impliesC' or '(.=>.)' instead to get an implicit context passing.
+-- 'impliesC' or (.=>.) instead to get an implicit context passing.
 implies :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 implies = apply $ (||) . P.not
 
 -- | Equivalence operator on ROBDD. Needs an explicit 'ROBDDContext' context passing. Use
--- 'equivC' or '(.<=>.)' instead to get an implicit context passing.
+-- 'equivC' or (.<=>.) instead to get an implicit context passing.
 equiv :: Ord v => ROBDDContext v -> ROBDD v -> ROBDD v -> (ROBDDContext v, ROBDD v)
 equiv = apply (==)
 

@@ -14,13 +14,18 @@ where
 import Data.HBDD.UIDGenerator
 
 -- | The type of ROBDDs. It can be either:
+--
 --     * 'ROBDD' a non-leaf node.
+--
 --     * 'ROBDDRef' a reference to an 'ROBDD'. Since we dont have any (pure) pointers, we have to
 --     simulate them using this constructor. An 'ROBDDRef' as meaningless without the
 --     'ROBDDContext' it has been created on. Thus, never use the same 'ROBDDRef' with two
 --     differents contexts. This might lead to an assertion failure, or any other weird behaviour.
---     * 'Zero' the leaf equal to False.
---     * 'One' the leaf equal to True.
+--
+--     * 'Zero' the leaf equal to 'False'.
+--
+--     * 'One' the leaf equal to 'True'.
+--
 data ROBDD v = ROBDD (ROBDD v) v (ROBDD v) !UID Int
                | ROBDDRef !UID v !UID !UID Int
                | Zero
@@ -35,6 +40,9 @@ identifier (ROBDDRef _ _ _ i _) = i
 identifier Zero                 = 0
 identifier One                  = 1
 
+-- | The size of the ROBDD. Not this is not the number of node. This is the total lengths
+-- of all paths starting at the ROBDD’s root. Therefore, shared nodes will be counted multiple
+-- times.
 size :: ROBDD v -> Int
 size (ROBDD    _ _ _ _ s) = s
 size (ROBDDRef _ _ _ _ s) = s

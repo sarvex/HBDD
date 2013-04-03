@@ -4,6 +4,8 @@
 
 module Data.HBDD.ROBDDState
 (
+-- | This modure exports the State monad based interface for manipulating ROBDDs. It is a lot
+-- easier to use than the explicit state passing api.
 ROBDDState
 , singletonC
 , singletonNotC
@@ -36,6 +38,7 @@ import Data.HBDD.ROBDDContext
 import Data.HBDD.ROBDDFactory
 import Data.HBDD.Operations
 
+-- | Type of the ROBDD and its Context hidden inside of the State monad.
 type ROBDDState v = State (ROBDDContext v) (ROBDD v)
 
 -- | Class of binary operations acting on ROBDDs.
@@ -44,28 +47,43 @@ type ROBDDState v = State (ROBDDContext v) (ROBDD v)
 class Ord v => ROBDDBinOp a b v | a b -> v where
   rewrite ::(ROBDD v -> ROBDD v -> ROBDDState v) -> a -> b -> ROBDDState v
 
+  -- | AND operator with implicit state passing.
   andC :: a -> b -> ROBDDState v
   andC = rewrite andC
+
+  -- | AND operator with implicit state passing.
   (.&.) :: a -> b -> ROBDDState v
   (.&.) = andC
 
+  -- | OR operator with implicit state passing.
   orC :: a -> b -> ROBDDState v
   orC = rewrite orC
+
+  -- | OR operator with implicit state passing.
   (.|.) :: a -> b -> ROBDDState v
   (.|.) = orC
 
+  -- | XOR operator with implicit state passing.
   xorC :: a -> b -> ROBDDState v
   xorC = rewrite xorC
+
+  -- | XOR operator with implicit state passing.
   (.^.) :: a -> b -> ROBDDState v
   (.^.) = xorC
 
+  -- | Implication operator with implicit state passing.
   impC :: a -> b -> ROBDDState v
   impC = rewrite impC
+
+  -- | Implication operator with implicit state passing.
   (.=>.) :: a -> b -> ROBDDState v
   (.=>.) = impC
 
+  -- | Equivalence operator with implicit state passing.
   equivC :: a -> b -> ROBDDState v
   equivC = rewrite equivC
+
+  -- | Equivalence operator with implicit state passing.
   (.<=>.) :: a -> b -> ROBDDState v
   (.<=>.) = equivC
 
@@ -97,6 +115,7 @@ instance Ord v => ROBDDBinOp (ROBDD v) (ROBDDState v) v where
 -- | Class of the negation operator working on obdds. It allowg the use of the same NotC operator
 -- on lifted and unlifted ROBDDs.
 class Ord v => ROBDDUnOp a v | a -> v where
+  -- | NOT operator with implicit state passing.
   notC :: a -> ROBDDState v
 
 instance Ord v => ROBDDUnOp (ROBDD v) v where
@@ -158,9 +177,8 @@ replaceC rep with bdd =
     put    $! clearOpContext ctx'
     return $! val
 
--- foldBySizeC :: Ord v => (ROBDDState v -> ROBDDState v -> ROBDDState v) -> [ ROBDDState v ] -> ROBDDState v
--- foldBySizeC = foldr1
-
+-- | ROBDD binary operator folding on BDD with increasing sizes. This is a kind of
+-- divid-and-conquer application of the binary operation on a list of ROBDD.
 foldBySizeC :: Ord v => (ROBDDState v -> ROBDDState v -> ROBDDState v) -> [ ROBDDState v ] -> ROBDDState v
 foldBySizeC f l = foldRec sorted
                   where
