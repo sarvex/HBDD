@@ -7,6 +7,7 @@ import Data.Either
 import Prelude hiding(and,or,not)
 import qualified Data.Map as M
 
+-- | USA graph coloring, but with fewer states (to make computation times more acceptable).
 main :: IO ()
 main = let (numToState, bdd) = usa in
        let (bdd', context)   = runState bdd mkContext in
@@ -14,6 +15,7 @@ main = let (numToState, bdd) = usa in
        Nothing -> return ()
        Just s  -> putStrLn s
 
+-- | Outputs the color of a state on the format "STATE Color\n\r"
 outputColors :: M.Map Int String -> [Either Int Int] -> String
 outputColors numToState result = foldr1 (++) $ map numberToState goodColors
                                  where
@@ -32,19 +34,19 @@ outputColors numToState result = foldr1 (++) $ map numberToState goodColors
 
 -- | Restriction saying that the neighbourgs of a node cannot have the same color
 edge :: Int -> Int -> ROBDDState Int
-edge state1 state2 = (state1Color1 .=>. notState2Color1)     -- incompatible colors
+edge state1 state2 = (state1Color1 .=>. notState2Color1)
                      .&. (state1Color2 .=>. notState2Color2)
                      .&. (state1Color3 .=>. notState2Color3)
                      .&. (state1Color4 .=>. notState2Color4)
                      where
-                     state1Color1 = singletonC $ state1 + 0 -- + r
-                     state1Color2 = singletonC $ state1 + 1 -- + g
-                     state1Color3 = singletonC $ state1 + 2 -- + b
-                     state1Color4 = singletonC $ state1 + 3 -- + y
-                     notState2Color1 = singletonNotC $ state2 + 0 -- + r
-                     notState2Color2 = singletonNotC $ state2 + 1 -- + g
-                     notState2Color3 = singletonNotC $ state2 + 2 -- + b
-                     notState2Color4 = singletonNotC $ state2 + 3 -- + y
+                     state1Color1 = singletonC $ state1 + 0 -- r
+                     state1Color2 = singletonC $ state1 + 1 -- g
+                     state1Color3 = singletonC $ state1 + 2 -- b
+                     state1Color4 = singletonC $ state1 + 3 -- y
+                     notState2Color1 = singletonNotC $ state2 + 0 -- r
+                     notState2Color2 = singletonNotC $ state2 + 1 -- g
+                     notState2Color3 = singletonNotC $ state2 + 2 -- b
+                     notState2Color4 = singletonNotC $ state2 + 3 -- y
 
 -- | Restrictions saying that a state has only one color
 oneColor :: Int -> ROBDDState Int
@@ -52,10 +54,10 @@ oneColor statec = foldr1 (.|.) $ map forbid colors
                   where
                   forbid i = singletonC i
                              .&. foldr1 (.&.) [ singletonNotC c | c <- colors, c /= i ]
-                  color1 = statec + 0 -- + r
-                  color2 = statec + 1 -- + g
-                  color3 = statec + 2 -- + b
-                  color4 = statec + 3 -- + y
+                  color1 = statec + 0 -- r
+                  color2 = statec + 1 -- g
+                  color3 = statec + 2 -- b
+                  color4 = statec + 3 -- y
                   colors = [ color1, color2, color3, color4 ]
 
 -- | BDD of the USA graph-coloring problem.
